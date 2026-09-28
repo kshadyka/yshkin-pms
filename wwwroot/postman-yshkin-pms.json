@@ -1,0 +1,71 @@
+{
+  "info": { "name": "YSHKYN PMS API", "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json" },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5155" },
+    { "key": "token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth Login",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"Admin123!\"\n}" },
+        "url": "{{baseUrl}}/api/auth/login"
+      }
+    },
+    {
+      "name": "Rooms",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/rooms" }
+    },
+    {
+      "name": "Bookings Admin",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/api/admin/bookings"
+      }
+    },
+    {
+      "name": "Content list",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/content" }
+    },
+    {
+      "name": "Content create",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"title\": \"Тест\",\n  \"category\": \"news\",\n  \"body\": \"<p>Текст</p>\",\n  \"isPublished\": true\n}" },
+        "url": "{{baseUrl}}/api/content"
+      }
+    },
+    {
+      "name": "MBank webhook",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"status\": \"paid\",\n  \"order_id\": \"1\",\n  \"payment_id\": \"mb_1\",\n  \"amount\": 6700\n}" },
+        "url": "{{baseUrl}}/api/billing/webhook/mbank"
+      }
+    },
+    {
+      "name": "Users list",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/api/users"
+      }
+    },
+    {
+      "name": "Rates",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/api/rates"
+      }
+    }
+  ]
+}

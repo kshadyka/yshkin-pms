@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Проверка брони — Ышкын</title>
+<link rel="icon" id="site-favicon" href="/assets/favicon.png">
+<style>
+  :root { --dark:#222; --pink:#FF385C; --gray:#717171; --border:#ebebeb; }
+  * { box-sizing: border-box; }
+  body { font-family: system-ui, -apple-system, sans-serif; margin: 0; background: #f7f7f7; color: var(--dark); }
+  .wrap { max-width: 480px; margin: 0 auto; padding: 24px 16px 48px; }
+  .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-weight: 800; font-size: 18px; }
+  .card { background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+  .row { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+  .row:last-child { border-bottom: none; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; background: #f1f5f9; font-size: 12px; font-weight: 600; }
+  .badge.ok { background: #dcfce7; color: #166534; }
+  .badge.warn { background: #ffedd5; color: #9a3412; }
+  h1 { font-size: 20px; margin: 0 0 8px; }
+  .sub { color: var(--gray); font-size: 13px; margin-bottom: 16px; }
+  input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 15px; margin-bottom: 10px; }
+  button { width: 100%; padding: 14px; border: none; border-radius: 10px; background: var(--pink); color: #fff; font-weight: 700; font-size: 15px; cursor: pointer; }
+  button.secondary { background: #fff; color: var(--dark); border: 1px solid #ddd; margin-top: 8px; }
+  .err { color: #e11d48; font-size: 13px; }
+  .ok-msg { color: #166534; font-size: 13px; }
+  #result { display: none; margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">
+    <svg width="36" height="36" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#0f172a"/><path d="M8 44 L24 22 L34 34 L44 18 L56 44 Z" fill="#22c55e"/><path d="M20 44 L34 28 L48 44 Z" fill="#86efac"/><circle cx="48" cy="16" r="5" fill="#fbbf24"/></svg>
+    Ышкын · Проверка брони
+  </div>
+  <div class="card">
+    <h1>Найти бронь</h1>
+    <p class="sub">Введите код с ваучера или отсканируйте QR</p>
+    <input id="token" placeholder="Код проверки" autocomplete="off">
+    <button type="button" onclick="lookup()">Проверить</button>
+    <p id="msg" class="err"></p>
+    <div id="result">
+      <div class="row"><span>Гость</span><strong id="r-guest"></strong></div>
+      <div class="row"><span>Объект</span><strong id="r-room"></strong></div>
+      <div class="row"><span>Заезд</span><span id="r-in"></span></div>
+      <div class="row"><span>Выезд</span><span id="r-out"></span></div>
+      <div class="row"><span>Сумма</span><strong id="r-price"></strong></div>
+      <div class="row"><span>Статус</span><span id="r-status" class="badge"></span></div>
+      <div class="row"><span>Оплата</span><span id="r-pay" class="badge"></span></div>
+      <p class="sub" style="margin-top:12px">До оплаты можно оставить заметку или запросить смену дат.</p>
+      <div style="margin-top:16px;border-top:1px solid #eee;padding-top:12px">
+        <label style="font-size:13px;font-weight:600">Заметка для хозяина</label>
+        <textarea id="guest-note" rows="2" placeholder="Пожелания, время заезда..." style="width:100%;margin:8px 0;padding:10px;border-radius:10px;border:1px solid #ddd"></textarea>
+        <button type="button" class="secondary" onclick="sendNote()">Отправить заметку</button>
+      </div>
+      <div style="margin-top:16px">
+        <label style="font-size:13px;font-weight:600">Запрос изменения дат</label>
+        <div style="display:flex;gap:8px;margin:8px 0">
+          <input type="date" id="req-in" style="flex:1;padding:10px;border-radius:10px;border:1px solid #ddd">
+          <input type="date" id="req-out" style="flex:1;padding:10px;border-radius:10px;border:1px solid #ddd">
+        </div>
+        <button type="button" class="secondary" onclick="requestChange()">Запросить изменение</button>
+      </div>
+      <div style="margin-top:16px">
+        <button type="button" onclick="loadPay()">Способы оплаты</button>
+        <p id="pay-info" class="sub"></p>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+function qs(name) {
+  const u = new URL(location.href);
+  return u.searchParams.get(name) || '';
+}
+async function lookup(token) {
+  token = (token || document.getElementById('token').value || '').trim();
+  const msg = document.getElementById('msg');
+  const result = document.getElementById('result');
+  msg.textContent = '';
+  result.style.display = 'none';
+  if (token.length < 4) { msg.textContent = 'Введите код'; return; }
+  try {
+    const res = await fetch('/api/verify/' + encodeURIComponent(token));
+    const data = await res.json();
+    if (!res.ok || !data.valid) {
+      msg.textContent = data.message || 'Бронь не найдена';
+      return;
+    }
+    document.getElementById('r-guest').textContent = data.guestName || '—';
+    document.getElementById('r-room').textContent = data.roomTitle || '—';
+    document.getElementById('r-in').textContent = data.checkIn || '—';
+    document.getElementById('r-out').textContent = data.checkOut || '—';
+    document.getElementById('r-price').textContent = (data.totalPrice != null ? Number(data.totalPrice).toLocaleString() + ' сом' : '—');
+    const st = document.getElementById('r-status');
+    st.textContent = data.status || '—';
+    st.className = 'badge ' + ((data.status || '').indexOf('Подтверж') >= 0 ? 'ok' : 'warn');
+    const pay = document.getElementById('r-pay');
+    const pl = data.paymentStatus === 'Paid' ? 'Оплачено' : (data.paymentStatus === 'Partial' ? 'Частично' : 'Не оплачено');
+    pay.textContent = pl;
+    pay.className = 'badge ' + (data.paymentStatus === 'Paid' ? 'ok' : 'warn');
+    result.style.display = 'block';
+    document.getElementById('token').value = token;
+  } catch (e) {
+    msg.textContent = 'Ошибка связи с сервером';
+  }
+}
+// support /verify?token=xxx and path /api/verify already used by QR
+(function() {
+  let t = qs('token');
+  if (!t && location.hash) t = location.hash.replace('#', '');
+  // if opened as /verify#CODE
+  if (t) { document.getElementById('token').value = t; lookup(t); }
+})();
+async function sendNote() {
+  const token = document.getElementById('token').value.trim();
+  const note = document.getElementById('guest-note').value.trim();
+  if (!note) return;
+  const res = await fetch('/api/guest/' + encodeURIComponent(token) + '/note', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ guestNote: note })
+  });
+  const msg = document.getElementById('msg');
+  if (res.ok) { msg.className = 'ok-msg'; msg.textContent = 'Заметка отправлена'; document.getElementById('guest-note').value = ''; }
+  else { msg.className = 'err'; msg.textContent = 'Не удалось отправить'; }
+}
+async function requestChange() {
+  const token = document.getElementById('token').value.trim();
+  const checkIn = document.getElementById('req-in').value;
+  const checkOut = document.getElementById('req-out').value;
+  if (!checkIn || !checkOut) { alert('Укажите даты'); return; }
+  const res = await fetch('/api/guest/' + encodeURIComponent(token) + '/request-change', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ checkIn, checkOut })
+  });
+  const data = await res.json().catch(() => ({}));
+  const msg = document.getElementById('msg');
+  msg.className = res.ok ? 'ok-msg' : 'err';
+  msg.textContent = data.message || (res.ok ? 'Запрос отправлен' : 'Ошибка');
+}
+async function loadPay() {
+  const token = document.getElementById('token').value.trim();
+  const res = await fetch('/api/guest/' + encodeURIComponent(token) + '/pay-info', { method: 'POST' });
+  const data = await res.json();
+  const el = document.getElementById('pay-info');
+  if (!res.ok) { el.textContent = 'Нет данных'; return; }
+  el.innerHTML = (data.methods || []).map(m => '<div><b>' + m.title + '</b> — ' + m.hint + '</div>').join('') +
+    '<div style="margin-top:6px">' + (data.message || '') + '</div>';
+}
+
+</script>
+</body>
+</html>

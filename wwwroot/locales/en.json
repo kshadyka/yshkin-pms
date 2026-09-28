@@ -1,0 +1,11 @@
+{
+  "book": "Book",
+  "guests": "Guests",
+  "checkIn": "Check-in",
+  "checkOut": "Check-out",
+  "reviews": "Guest reviews",
+  "news": "News & blog",
+  "amenities": "What this place offers",
+  "submitReview": "Submit for moderation",
+  "fees": "All fees included"
+}

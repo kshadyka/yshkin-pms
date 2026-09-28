@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель — Бронирования «Ышкын»</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 1300px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { margin-top: 0; color: #2c3e50; }
+        
+        /* Авторизация */
+        #auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 2000; }
+        .auth-card { background: white; padding: 30px; border-radius: 12px; width: 320px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        .auth-card h2 { margin-top: 0; margin-bottom: 20px; font-size: 20px; color: #2c3e50; text-align: center; }
+        .auth-input { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        .auth-btn { width: 100%; padding: 10px; background: #2c3e50; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .auth-btn:hover { background: #34495e; }
+        .auth-error { color: #c0392b; font-size: 13px; margin-bottom: 10px; text-align: center; display: none; }
+
+        /* Вкладки переключения */
+        .nav-tabs { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f1f1; padding-bottom: 10px; margin-bottom: 20px; }
+        .tabs-left { display: flex; gap: 10px; }
+        .tab-btn { padding: 8px 16px; border: none; background: #e2e8f0; cursor: pointer; border-radius: 4px; font-weight: bold; color: #475569; }
+        .tab-btn.active { background: #2c3e50; color: white; }
+        .btn-logout { background: #c0392b; color: white; border: none; padding: 8px 14px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-logout:hover { background: #962d22; }
+
+        .view-section { display: none; }
+        .view-section.active { display: block; }
+
+        /* Таблица списка */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; font-size: 14px; }
+        th { background-color: #2c3e50; color: white; }
+        tr:hover { background-color: #f1f1f1; }
+        .status-new { color: #e67e22; font-weight: bold; }
+        .status-confirmed { color: #27ae60; font-weight: bold; }
+        .status-cancelled { color: #c0392b; font-weight: bold; }
+        .btn-refresh { background-color: #3498db; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; }
+        .btn-refresh:hover { background-color: #2980b9; }
+        .action-select { padding: 5px; border-radius: 4px; border: 1px solid #ccc; cursor: pointer; }
+
+        /* Шахматный календарь */
+        .calendar-controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; background: #f8fafc; padding: 10px 15px; border-radius: 6px; }
+        .chess-wrapper { overflow-x: auto; margin-top: 10px; }
+        .chess-table { width: 100%; border-collapse: collapse; min-width: 900px; }
+        .chess-table th, .chess-table td { border: 1px solid #cbd5e1; text-align: center; padding: 8px 4px; font-size: 13px; }
+        .chess-table th.room-col { text-align: left; padding-left: 12px; min-width: 180px; background: #e2e8f0; }
+        .chess-table td.room-name { text-align: left; padding-left: 12px; font-weight: bold; background: #f8fafc; }
+        .day-cell { width: 32px; height: 35px; }
+        .day-cell.booked { background-color: #fed7aa; color: #9a3412; font-weight: bold; position: relative; cursor: help; }
+        .day-cell.booked:hover::after {
+            content: attr(data-guest);
+            position: absolute;
+            bottom: 105%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            white-space: nowrap;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Окно авторизации -->
+    <div id="auth-overlay">
+        <div class="auth-card">
+            <h2>Вход в админ-панель</h2>
+            <div id="auth-error" class="auth-error">Неверный логин или пароль</div>
+            <form id="auth-form" onsubmit="handleLogin(event)">
+                <input type="text" id="username" class="auth-input" placeholder="Логин (admin)" required>
+                <input type="password" id="password" class="auth-input" placeholder="Пароль" required>
+                <button type="submit" class="auth-btn">Войти</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>Управление бронированиями «Ышкын»</h1>
+        
+        <!-- Переключатель вкладок и кнопка выхода -->
+        <div class="nav-tabs">
+            <div class="tabs-left">
+                <button class="tab-btn active" onclick="switchView('list', this)">📋 Список заявок</button>
+                <button class="tab-btn" onclick="switchView('chess', this)">📅 Шахматка (Календарь)</button>
+            </div>
+            <button class="btn-logout" onclick="logout()">Выйти</button>
+        </div>
+
+        <!-- Секция 1: Список -->
+        <div id="listView" class="view-section active">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                <button class="btn-refresh" onclick="loadBookings()">Обновить данные</button>
+                <small style="color: #666;">Автообновление каждые 30 секунд</small>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Объект</th>
+                        <th>Гость</th>
+                        <th>Телефон</th>
+                        <th>Заезд / Выезд</th>
+                        <th>Ночей</th>
+                        <th>Доп. услуги</th>
+                        <th>Сумма</th>
+                        <th>Статус</th>
+                        <th>Создано</th>
+                    </tr>
+                </thead>
+                <tbody id="bookingsTable">
+                    <tr><td colspan="10" style="text-align:center;">Загрузка...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Секция 2: Шахматка -->
+        <div id="chessView" class="view-section">
+            <div class="calendar-controls">
+                <button class="btn-refresh" onclick="changeMonth(-1)">← Назад</button>
+                <h3 id="currentMonthLabel" style="margin:0; color: #2c3e50;">Сентябрь 2026</h3>
+                <button class="btn-refresh" onclick="changeMonth(1)">Вперед →</button>
+            </div>
+            <div class="chess-wrapper">
+                <table class="chess-table" id="chessTable">
+                    <!-- Заполняется динамически -->
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMonth = new Date().getMonth() + 1;
+        let currentYear = new Date().getFullYear();
+
+        // Получение заголовка авторизации с JWT токеном из localStorage
+        function getAuthHeader() {
+            const token = localStorage.getItem('yshkin_jwt');
+            return token ? 'Bearer ' + token : '';
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const errorDiv = document.getElementById('auth-error');
+            errorDiv.style.display = 'none';
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (!res.ok) {
+                    throw new Error('Неверные учетные данные');
+                }
+
+                const data = await res.json();
+                if (data.token) {
+                    localStorage.setItem('yshkin_jwt', data.token);
+                    document.getElementById('auth-overlay').style.display = 'none';
+                    loadBookings();
+                } else {
+                    throw new Error('Токен не получен');
+                }
+            } catch (err) {
+                errorDiv.style.display = 'block';
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('yshkin_jwt');
+            document.getElementById('auth-overlay').style.display = 'flex';
+        }
+
+        // Проверка авторизации при загрузке страницы
+        window.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('yshkin_jwt');
+            if (token) {
+                document.getElementById('auth-overlay').style.display = 'none';
+                loadBookings();
+            } else {
+                document.getElementById('auth-overlay').style.display = 'flex';
+            }
+        });
+
+        function switchView(viewName, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+            
+            btn.classList.add('active');
+            if(viewName === 'list') {
+                document.getElementById('listView').classList.add('active');
+                loadBookings();
+            } else {
+                document.getElementById('chessView').classList.add('active');
+                loadCalendar();
+            }
+        }
+
+        function calculateNights(checkIn, checkOut) {
+            if (!checkIn || !checkOut) return 0;
+            const start = new Date(checkIn);
+            const end = new Date(checkOut);
+            const diffTime = end - start;
+            const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays > 0 ? diffDays : 0;
+        }
+
+        async function loadBookings() {
+            try {
+                const response = await fetch('/api/admin/bookings', {
+                    headers: { 'Authorization': getAuthHeader() }
+                });
+                if (response.status === 401) {
+                    logout();
+                    return;
+                }
+                const bookings = await response.json();
+                renderTable(bookings);
+            } catch (err) {
+                console.error('Ошибка загрузки:', err);
+                document.getElementById('bookingsTable').innerHTML = '<tr><td colspan="10" style="text-align:center; color:red;">Ошибка загрузки данных</td></tr>';
+            }
+        }
+
+        function renderTable(bookings) {
+            const tbody = document.getElementById('bookingsTable');
+            tbody.innerHTML = '';
+
+            if (!bookings || bookings.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;">Бронирований пока нет</td></tr>';
+                return;
+            }
+
+            bookings.forEach(b => {
+                let statusClass = '';
+                const currentStatus = b.status || b.Status || 'Новая';
+                if (currentStatus === 'Новая' || currentStatus === 'Ожидает подтверждения') statusClass = 'status-new';
+                else if (currentStatus === 'Подтверждена') statusClass = 'status-confirmed';
+                else if (currentStatus === 'Отменена') statusClass = 'status-cancelled';
+
+                const roomName = b.roomTitle || b.RoomTitle || b.roomName || b.RoomName || ('Комната #' + (b.roomId || b.RoomId || ''));
+                
+                let extrasList = 'Нет';
+                const rawExtras = b.bookingExtras || b.BookingExtras || b.extras || b.Extras;
+                
+                if (Array.isArray(rawExtras) && rawExtras.length > 0) {
+                    const names = rawExtras.map(item => {
+                        if (typeof item === 'object' && item !== null) {
+                            return item.name || item.Name || item.title || item.Title || '';
+                        }
+                        return String(item);
+                    }).filter(name => name.trim() !== '');
+
+                    if (names.length > 0) {
+                        extrasList = names.join(', ');
+                    }
+                }
+
+                const checkIn = b.checkIn || b.CheckIn || '';
+                const checkOut = b.checkOut || b.CheckOut || '';
+                const nightsCount = calculateNights(checkIn, checkOut);
+                const bookingId = b.id !== undefined ? b.id : b.Id;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>#${bookingId}</td>
+                    <td><strong>${roomName}</strong></td>
+                    <td>${b.guestName || b.GuestName}</td>
+                    <td><code>${b.guestPhone || b.GuestPhone}</code></td>
+                    <td>${checkIn.substring(0, 10)} <br>→ ${checkOut.substring(0, 10)}</td>
+                    <td><strong>${nightsCount}</strong></td>
+                    <td><span style="color: #0284c7; font-weight: 500;">${extrasList}</span></td>
+                    <td><strong>${b.totalPrice || b.TotalPrice} сом</strong></td>
+                    <td>
+                        <select class="action-select ${statusClass}" onchange="updateStatus(${bookingId}, this.value)">
+                            <option value="Новая" ${currentStatus === 'Новая' ? 'selected' : ''}>Новая</option>
+                            <option value="Ожидает подтверждения" ${currentStatus === 'Ожидает подтверждения' ? 'selected' : ''}>Ожидает подтверждения</option>
+                            <option value="Подтверждена" ${currentStatus === 'Подтверждена' ? 'selected' : ''}>Подтверждена</option>
+                            <option value="Отменена" ${currentStatus === 'Отменена' ? 'selected' : ''}>Отменена</option>
+                        </select>
+                    </td>
+                    <td><small>${b.createdAt || b.CreatedAt || ''}</small></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function updateStatus(bookingId, newStatus) {
+            try {
+                const response = await fetch(`/api/bookings/${bookingId}/status`, {
+                    method: 'PATCH',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': getAuthHeader()
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                if (response.status === 401) { logout(); return; }
+                if (!response.ok) { alert('Не удалось обновить статус'); }
+                loadBookings();
+            } catch (err) {
+                console.error('Ошибка:', err);
+                alert('Ошибка соединения с сервером');
+                loadBookings();
+            }
+        }
+
+        async function loadCalendar() {
+            try {
+                const res = await fetch(`/api/admin/calendar?month=${currentMonth}&year=${currentYear}`, {
+                    headers: { 'Authorization': getAuthHeader() }
+                });
+                if (res.status === 401) { logout(); return; }
+                const data = await res.json();
+                
+                const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+                document.getElementById('currentMonthLabel').innerText = `${monthNames[data.month - 1]} ${data.year}`;
+
+                const daysInMonth = new Date(data.year, data.month, 0).getDate();
+
+                let headerHtml = '<tr><th class="room-col">Объект размещения</th>';
+                for(let d = 1; d <= daysInMonth; d++) {
+                    headerHtml += `<th>${d}</th>`;
+                }
+                headerHtml += '</tr>';
+
+                let bodyHtml = headerHtml;
+                data.rooms.forEach(room => {
+                    const roomId = room.id !== undefined ? room.id : room.Id;
+                    const roomTitle = room.title !== undefined ? room.title : room.Title;
+
+                    bodyHtml += `<tr><td class="room-name">${roomTitle}</td>`;
+                    
+                    for(let d = 1; d <= daysInMonth; d++) {
+                        const dayStr = String(d).padStart(2, '0');
+                        const monthStr = String(data.month).padStart(2, '0');
+                        const cellDate = `${data.year}-${monthStr}-${dayStr}`;
+
+                        const booking = (data.bookings || []).find(b => {
+                            const bRoomId = b.roomId !== undefined ? b.roomId : b.RoomId;
+                            const rawCheckIn = b.checkIn !== undefined ? b.checkIn : b.CheckIn;
+                            const rawCheckOut = b.checkOut !== undefined ? b.checkOut : b.CheckOut;
+
+                            if (!rawCheckIn || !rawCheckOut) return false;
+
+                            const bCheckInDate = String(rawCheckIn).substring(0, 10);
+                            const bCheckOutDate = String(rawCheckOut).substring(0, 10);
+
+                            return Number(bRoomId) === Number(roomId) && 
+                                   cellDate >= bCheckInDate && 
+                                   cellDate < bCheckOutDate;
+                        });
+
+                        if(booking) {
+                            const guestName = booking.guestName !== undefined ? booking.guestName : booking.GuestName;
+                            const status = booking.status !== undefined ? booking.status : booking.Status;
+                            bodyHtml += `<td class="day-cell booked" data-guest="${guestName} (${status})">ЗН</td>`;
+                        } else {
+                            bodyHtml += `<td class="day-cell"></td>`;
+                        }
+                    }
+                    bodyHtml += '</tr>';
+                });
+
+                document.getElementById('chessTable').innerHTML = bodyHtml;
+            } catch (err) {
+                console.error('Ошибка загрузки календаря', err);
+            }
+        }
+
+        function changeMonth(direction) {
+            currentMonth += direction;
+            if(currentMonth > 12) { currentMonth = 1; currentYear++; }
+            if(currentMonth < 1) { currentMonth = 12; currentYear--; }
+            loadCalendar();
+        }
+
+        setInterval(() => {
+            if (localStorage.getItem('yshkin_jwt')) {
+                loadBookings();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>

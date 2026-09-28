@@ -1,0 +1,66 @@
+{
+  "brand": {
+    "name": "Ышкын",
+    "fullName": "Ышкын Глэмпинг",
+    "logoUrl": "/assets/logo.png",
+    "faviconUrl": "/assets/favicon.png",
+    "primaryColor": "#FF385C",
+    "currency": "сом",
+    "currencySymbol": "сом",
+    "currencyCode": "KGS",
+    "timezone": "Asia/Bishkek",
+    "siteHeadline": "Жилье целиком",
+    "tagline": "Глэмпинг на Иссык-Куле"
+  },
+  "seo": {
+    "title": "Ышкын — Глэмпинг и аренда жилья на Иссык-Куле",
+    "description": "Юрты и модульные дома у озера Иссык-Куль. Бронирование онлайн.",
+    "keywords": "глэмпинг, Иссык-Куль, юрта, Чолпон-Ата, Ышкын",
+    "ogImage": "/assets/logo.png"
+  },
+  "contacts": {
+    "phone": "+996",
+    "whatsapp": "",
+    "telegram": "@yshkin",
+    "email": ""
+  },
+  "notifications": {
+    "telegramEnabled": true,
+    "whatsappEnabled": false,
+    "whatsappPhone": "",
+    "whatsappApiKey": "",
+    "onNewBooking": true,
+    "onNewReview": true
+  },
+  "features": {
+    "showMap": true,
+    "showReviews": true,
+    "enableExtras": true,
+    "showNews": true
+  },
+  "location": {
+    "address": "Чолпон-Ата, Иссык-Куль",
+    "lat": 42.6494,
+    "lng": 77.0822,
+    "mapProvider": "yandex",
+    "zoom": 14
+  },
+  "i18n": {
+    "defaultLocale": "ru",
+    "locales": [
+      "ru",
+      "en",
+      "ky"
+    ]
+  },
+  "homepage": {
+    "heroSearchPlaceholder": "Любое направление",
+    "categoriesLabel": "Все объекты",
+    "reviewsTitle": "Отзывы гостей",
+    "newsTitle": "Новости и блог",
+    "mapTitle": "Где вы будете",
+    "bookCta": "Забронировать",
+    "feesNote": "В цену входят все сборы",
+    "payNote": "Пока вы ни за что не платите — заявка уйдёт администратору"
+  }
+}

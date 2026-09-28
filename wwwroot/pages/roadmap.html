@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Дорожная карта — Ышкын</title>
+<style>
+body { font-family: system-ui, -apple-system, sans-serif; max-width: 760px; margin: 40px auto; padding: 0 20px; line-height: 1.65; color: #222; }
+a { color: #FF385C; }
+.meta { color: #717171; font-size: 13px; margin-bottom: 24px; }
+.prose img { max-width: 100%; border-radius: 12px; }
+.prose h2 { margin-top: 1.5em; }
+</style>
+</head>
+<body>
+<p><a href="/">← На сайт</a></p>
+<p class="meta">Ышкын · <span id="ver">v2.36</span></p>
+<h1 id="page-title">Дорожная карта</h1>
+<div class="prose" id="page-body"><p style="color:#717171">Загрузка…</p></div>
+<script>
+(async function() {
+  const slug = "roadmap";
+  try {
+    const vr = await fetch("/api/version", { cache: "no-store" });
+    if (vr.ok) {
+      const d = await vr.json();
+      const v = d.version || d.Version;
+      if (v) document.getElementById("ver").textContent = "v" + String(v).replace(/^v/, "");
+    }
+  } catch (e) {}
+  try {
+    let list = [];
+    const r1 = await fetch("/api/content?category=" + encodeURIComponent(slug), { cache: "no-store" });
+    if (r1.ok) list = await r1.json();
+    if (!Array.isArray(list) || !list.length) {
+      const r2 = await fetch("/api/content", { cache: "no-store" });
+      if (r2.ok) {
+        const all = await r2.json();
+        list = (all || []).filter(x => {
+          const c = (x.category || x.Category || "").toLowerCase();
+          return c === slug || c === "legal-" + slug;
+        });
+      }
+    }
+    const page = (list || []).find(x => x.isPublished !== false && x.IsPublished !== false) || (list || [])[0];
+    if (page) {
+      document.getElementById("page-title").textContent = page.title || page.Title || "Дорожная карта";
+      document.getElementById("page-body").innerHTML = page.body || page.Body || "<p>Пусто</p>";
+      document.title = (page.title || page.Title || "Дорожная карта") + " — Ышкын";
+    } else {
+      document.getElementById("page-body").innerHTML = "<p>Текст страницы ещё не задан. Откройте админку → Новости → раздел «roadmap» и опубликуйте.</p>";
+    }
+  } catch (e) {
+    document.getElementById("page-body").innerHTML = "<p>Не удалось загрузить контент.</p>";
+  }
+})();
+</script>
+</body>
+</html>

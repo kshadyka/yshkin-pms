@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>YSHKYN PMS · Lab / API</title>
+<style>
+body{font-family:system-ui;max-width:900px;margin:24px auto;padding:0 16px;line-height:1.5;color:#0f172a;background:#f8fafc}
+h1{font-size:22px} h2{font-size:16px;margin-top:28px}
+code,pre{background:#e2e8f0;padding:2px 6px;border-radius:4px;font-size:12px}
+pre{padding:12px;overflow:auto}
+.ok{color:#16a34a}.fail{color:#dc2626}.skip{color:#64748b}
+table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border-radius:8px;overflow:hidden}
+td,th{border:1px solid #e2e8f0;padding:8px;text-align:left}
+button{padding:8px 14px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;cursor:pointer;font-weight:600}
+button.primary{background:#2563eb;color:#fff;border-color:#2563eb}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin:12px 0}
+input{padding:8px;border:1px solid #cbd5e1;border-radius:6px;width:100%;box-sizing:border-box;margin:4px 0 10px}
+</style>
+</head>
+<body>
+<p><a href="/">← Сайт</a> · <a href="/admin">Админ</a> · <a href="/roadmap">Roadmap</a></p>
+<h1>Лаборатория API · v2.43</h1>
+<p>Внутренняя страница для проверки эндпоинтов, ролей и подключения. Не для гостей.</p>
+
+<div class="card">
+  <h2>1. JWT (логин)</h2>
+  <label>Логин или email</label>
+  <input id="labUser" value="admin">
+  <label>Пароль</label>
+  <input id="labPass" type="password" value="Admin123!">
+  <button class="primary" type="button" onclick="labLogin()">Получить токен</button>
+  <pre id="labToken">токен появится здесь</pre>
+</div>
+
+<div class="card">
+  <h2>2. Прогон API</h2>
+  <button class="primary" type="button" onclick="runChecks()">Запустить проверки</button>
+  <table style="margin-top:12px">
+    <thead><tr><th>Метод</th><th>URL</th><th>Auth</th><th>Статус</th></tr></thead>
+    <tbody id="labResults"></tbody>
+  </table>
+</div>
+
+<div class="card">
+  <h2>3. Роли</h2>
+  <table>
+    <tr><th>Роль</th><th>Доступ</th></tr>
+    <tr><td>Owner</td><td>Всё: пользователи, биллинг, настройки, контент, брони</td></tr>
+    <tr><td>Admin</td><td>Как Owner, кроме критичных ограничений tenant</td></tr>
+    <tr><td>Manager</td><td>Брони, шахматка, контент, отчёт платежей</td></tr>
+    <tr><td>Housekeeping</td><td>Уборка, просмотр броней</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2>4. Как подключить (чеклист)</h2>
+  <ol>
+    <li><code>dotnet run --urls "http://localhost:5155"</code> или Docker</li>
+    <li>Открыть <code>/admin</code> → войти (seed: admin / из appsettings)</li>
+    <li>Проверить <code>/api/version</code>, <code>/api/rooms</code>, <code>/privacy</code></li>
+    <li>Telegram: Настройки → integrations bot token + chat id</li>
+    <li>Карта: Настройки → lat/lng → сайт «На карте»</li>
+    <li>Платежи: статус вручную + <code>POST /api/billing/test-payment</code></li>
+    <li>Прод: reverse proxy на 8080, volume <code>data/</code> и <code>wwwroot/uploads</code></li>
+  </ol>
+</div>
+
+<div class="card">
+  <h2>5. Дорожная карта (как у PMS-конкурентов)</h2>
+  <ul>
+    <li>✓ Каталог, бронь, шахматка, роли JWT</li>
+    <li>✓ Telegram уведомления, /verify токен</li>
+    <li>✓ Отзывы/новости, SEO, clean URL</li>
+    <li>✓ Журнал аудита, версии контента</li>
+    <li>✓ Биллинг-отчёт, test payment stub</li>
+    <li>○ Channel manager (Booking.com / Avito)</li>
+    <li>○ Реальный эквайринг (PayBox / Stripe)</li>
+    <li>○ Dynamic pricing / yield</li>
+    <li>○ Guest CRM + email automation</li>
+    <li>○ Multi-property dashboard (SaaS 1500€ MRR)</li>
+  </ul>
+</div>
+
+<script>
+let TOKEN = localStorage.getItem('token') || localStorage.getItem('yshkin_token') || '';
+async function labLogin() {
+  const body = {
+    username: document.getElementById('labUser').value,
+    password: document.getElementById('labPass').value
+  };
+  // try both field names
+  let res = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) {
+    res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: body.username, password: body.password, username: body.username })
+    });
+  }
+  const d = await res.json().catch(() => ({}));
+  TOKEN = d.token || d.Token || '';
+  document.getElementById('labToken').textContent = res.ok ? (TOKEN.slice(0, 48) + '…') : JSON.stringify(d);
+  if (TOKEN) localStorage.setItem('token', TOKEN);
+}
+async function runChecks() {
+  const checks = [
+    { m: 'GET', u: '/api/version', auth: false },
+    { m: 'GET', u: '/api/rooms', auth: false },
+    { m: 'GET', u: '/api/content', auth: false },
+    { m: 'GET', u: '/api/settings/branding', auth: false },
+    { m: 'GET', u: '/api/billing/plans', auth: false },
+    { m: 'GET', u: '/api/billing/report?days=30', auth: true },
+    { m: 'GET', u: '/api/users', auth: true },
+    { m: 'GET', u: '/api/admin/bookings', auth: true },
+    { m: 'GET', u: '/api/audit?take=5', auth: true },
+    { m: 'GET', u: '/api/energy/status', auth: true },
+    { m: 'POST', u: '/api/billing/test-payment', auth: true, body: { amountEur: 1 } },
+    { m: 'GET', u: '/api/competitors', auth: true },
+    { m: 'POST', u: '/api/billing/webhook/mbank', auth: false, body: { status: 'paid', order_id: '0', amount: 1 } },
+  ];
+  const tb = document.getElementById('labResults');
+  tb.innerHTML = '';
+  for (const c of checks) {
+    const headers = {};
+    if (c.auth && TOKEN) headers['Authorization'] = 'Bearer ' + TOKEN;
+    if (c.body) headers['Content-Type'] = 'application/json';
+    let status = '—', cls = 'skip';
+    try {
+      const res = await fetch(c.u, { method: c.m, headers, body: c.body ? JSON.stringify(c.body) : undefined });
+      status = res.status;
+      cls = res.ok ? 'ok' : (res.status === 401 || res.status === 403 ? 'skip' : 'fail');
+    } catch (e) {
+      status = 'ERR';
+      cls = 'fail';
+    }
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td>' + c.m + '</td><td><code>' + c.u + '</code></td><td>' + (c.auth ? 'JWT' : '—') + '</td><td class="' + cls + '">' + status + '</td>';
+    tb.appendChild(tr);
+  }
+}
+</script>
+</body>
+</html>

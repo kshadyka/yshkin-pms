@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Регистрация — Ышкын</title>
+<style>
+body{font-family:system-ui;background:#f7f7f7;margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center}
+.card{background:#fff;border-radius:16px;padding:28px;max-width:400px;width:92%;box-shadow:0 8px 30px rgba(0,0,0,.08)}
+h1{font-size:22px;margin:0 0 8px}
+p{color:#717171;font-size:14px;margin:0 0 20px}
+label{display:block;font-size:12px;font-weight:600;margin:12px 0 4px}
+input{width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:14px;box-sizing:border-box}
+button{width:100%;margin-top:18px;padding:12px;background:#FF385C;color:#fff;border:none;border-radius:10px;font-weight:700;cursor:pointer}
+a{color:#FF385C}
+.err{color:#c00;font-size:13px;margin-top:8px;display:none}
+.note{font-size:12px;color:#999;margin-top:16px}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Регистрация гостя</h1>
+  <p>Сохраните контакты для будущих броней. Вход в админку — только для персонала.</p>
+  <form id="regForm">
+    <label>Имя</label>
+    <input name="fullName" required placeholder="Как к вам обращаться">
+    <label>Телефон</label>
+    <input name="phone" required placeholder="+996 ...">
+    <label>Email (необязательно)</label>
+    <input name="email" type="email" placeholder="mail@example.com">
+    <button type="submit">Зарегистрироваться</button>
+    <div class="err" id="err"></div>
+  </form>
+  <p class="note">Уже есть бронь? <a href="/verify">Проверить по коду</a> · <a href="/">На сайт</a> · <a href="/admin">Вход персонала</a></p>
+</div>
+<script>
+document.getElementById('regForm').onsubmit = async function(e) {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const body = {
+    fullName: fd.get('fullName'),
+    phone: fd.get('phone'),
+    email: fd.get('email') || null
+  };
+  const err = document.getElementById('err');
+  err.style.display = 'none';
+  try {
+    let res = await fetch('/api/guests', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) {
+      res = await fetch('/api/guests/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+    }
+    if (res.ok) {
+      alert('Спасибо! Данные сохранены.');
+      location.href = '/';
+    } else {
+      const d = await res.json().catch(() => ({}));
+      err.textContent = d.error || d.message || 'Ошибка ' + res.status;
+      err.style.display = 'block';
+    }
+  } catch (ex) {
+    err.textContent = 'Нет связи с сервером';
+    err.style.display = 'block';
+  }
+};
+</script>
+</body>
+</html>

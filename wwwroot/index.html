@@ -1,0 +1,2261 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" id="meta-description" content="">
+    <meta name="keywords" id="meta-keywords" content="">
+    <title id="doc-title">Ышкын — Аренда жилья и глэмпинга в горах</title>
+    <link rel="icon" id="site-favicon" href="/assets/favicon.png" type="image/png">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <style>
+        :root { 
+            --primary: #FF385C; 
+            --primary-hover: #E00B41;
+            --gray: #717171; 
+            --light-gray: #DDDDDD; 
+            --bg-subtle: #F7F7F7;
+            --dark: #222222;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.08);
+            --shadow-md: 0 6px 16px rgba(0,0,0,0.12);
+            --shadow-lg: 0 12px 32px rgba(0,0,0,0.18);
+        }
+        *, *::before, *::after { box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            margin: 0; padding: 0; color: var(--dark); background: #fff; -webkit-font-smoothing: antialiased; 
+        }
+        body.modal-open { overflow: hidden; }
+        
+        /* HEADER */
+        .header { 
+            border-bottom: 1px solid var(--light-gray); padding: 14px 24px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            position: sticky; top: 0; background: #fff; z-index: 100; gap: 12px;
+        }
+        .logo { 
+            font-size: 20px; font-weight: 800; color: var(--primary); 
+            text-decoration: none; display: flex; align-items: center; gap: 8px; 
+            cursor: pointer; letter-spacing: -0.5px; white-space: nowrap; 
+        }
+        .logo svg { width: 28px; height: 28px; fill: var(--primary); }
+        
+        .search-bar-mock { 
+            display: flex; border: 1px solid var(--light-gray); border-radius: 40px; 
+            padding: 6px 10px 6px 16px; align-items: center; gap: 12px; 
+            box-shadow: var(--shadow-sm); transition: all 0.2s ease; cursor: pointer; 
+            max-width: 440px; width: 100%; justify-content: space-between;
+            background: #fff;
+        }
+        .search-bar-mock:hover { box-shadow: var(--shadow-md); border-color: #b0b0b0; }
+        .search-bar-mock span { font-weight: 600; font-size: 13px; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .search-bar-mock .divider { width: 1px; height: 18px; background: var(--light-gray); flex-shrink: 0; }
+        .search-btn-icon { 
+            background: var(--primary); color: white; border: none; width: 32px; height: 32px; 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; transition: background 0.2s; font-size: 13px; flex-shrink: 0;
+        }
+        .search-btn-icon:hover { background: var(--primary-hover); }
+
+        .desktop-only-inline { display: none; }
+        .desktop-only-block { display: none; }
+        @media (min-width: 768px) {
+            .desktop-only-inline { display: inline; }
+            .desktop-only-block { display: block; }
+        }
+
+        .header-controls { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+        .user-menu { 
+            display: flex; align-items: center; gap: 10px; border: 1px solid var(--light-gray); 
+            border-radius: 24px; padding: 5px 6px 5px 12px; background: #fff; cursor: pointer; 
+            transition: box-shadow 0.2s; 
+        }
+        .user-menu:hover { box-shadow: var(--shadow-md); }
+
+        /* CATEGORIES */
+        /* categories-pointer-fix */
+        .categories { position: relative; z-index: 5; pointer-events: auto;
+        
+            display: flex; justify-content: flex-start; gap: 32px; padding: 12px 24px 0 24px; 
+            border-bottom: 1px solid var(--light-gray); overflow-x: auto; background: #fff; 
+            position: sticky; top: 69px; z-index: 90; scrollbar-width: none; 
+        }
+        .categories::-webkit-scrollbar { display: none; }
+        .category-item { cursor: pointer; user-select: none;
+        }
+        .category-item { 
+            display: flex; flex-direction: column; align-items: center; gap: 6px; 
+            font-size: 12px; font-weight: 500; color: var(--gray); cursor: pointer; 
+            opacity: 0.7; transition: all 0.2s ease; white-space: nowrap; padding-bottom: 12px; 
+            border-bottom: 2px solid transparent; 
+        }
+        .category-item:hover { opacity: 1; color: var(--dark); }
+        .category-item.active { opacity: 1; color: var(--dark); border-bottom-color: var(--dark); font-weight: 700; }
+        .category-icon-box {
+            width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+            font-size: 18px; border-radius: 50%; background: var(--bg-subtle); transition: background 0.2s;
+        }
+        .category-item:hover .category-icon-box, .category-item.active .category-icon-box { background: #eee; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 24px 20px; }
+        
+        .map-widget-banner { 
+            background: var(--bg-subtle); border: 1px solid var(--light-gray); 
+            border-radius: var(--radius-lg); padding: 16px 20px; display: flex; 
+            flex-direction: column; gap: 12px; margin-bottom: 24px; 
+        }
+        @media (min-width: 600px) {
+            .map-widget-banner { flex-direction: row; justify-content: space-between; align-items: center; padding: 20px 24px; }
+        }
+        .map-widget-banner h3 { margin: 0 0 4px 0; font-size: 16px; font-weight: 700; }
+        .map-widget-banner p { margin: 0; color: var(--gray); font-size: 13px; }
+        .map-btn { 
+            background: var(--dark); color: white; border: none; padding: 10px 18px; 
+            border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; transition: opacity 0.2s; white-space: nowrap; 
+        }
+        .map-btn:hover { opacity: 0.85; }
+
+        /* GRID & CARDS */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; }
+        .card { text-decoration: none; color: inherit; display: block; cursor: pointer; }
+        .card-img-wrapper { 
+            position: relative; width: 100%; aspect-ratio: 1/1; border-radius: var(--radius-lg); 
+            overflow: hidden; margin-bottom: 10px; background: #eee; 
+        }
+        .card-img-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+        .card:hover img { transform: scale(1.04); }
+        .card-badge { 
+            position: absolute; top: 12px; left: 12px; background: rgba(255,255,255,0.92); 
+            padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; backdrop-filter: blur(4px);
+        }
+        .card-title { font-weight: 700; font-size: 15px; margin-bottom: 2px; display: flex; justify-content: space-between; align-items: center; }
+        .card-subtitle { color: var(--gray); font-size: 13px; margin-bottom: 6px; }
+        .card-price { font-weight: 700; font-size: 15px; color: var(--dark); }
+        .card-price span { font-weight: normal; color: var(--gray); font-size: 13px; }
+
+        .view-section { display: none; }
+        .view-section.active { display: block; }
+        
+        .back-link { 
+            display: inline-flex; align-items: center; gap: 6px; margin-bottom: 16px; 
+            color: var(--dark); text-decoration: none; font-weight: 600; font-size: 13px; 
+            cursor: pointer; padding: 8px 14px; border-radius: var(--radius-sm); background: var(--bg-subtle); 
+            transition: background 0.2s; 
+        }
+        .back-link:hover { background: var(--light-gray); }
+
+        .room-heading { font-size: 24px; margin: 0 0 6px 0; font-weight: 800; letter-spacing: -0.5px; }
+
+        /* GALLERY DETAIL */
+        .gallery { 
+            display: grid; grid-template-columns: 1fr; grid-template-rows: 260px; gap: 8px; 
+            border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 28px; 
+        }
+        @media (min-width: 768px) {
+            .gallery { grid-template-columns: 2fr 1fr 1fr; grid-template-rows: 180px 180px; }
+            .gallery-img-container:first-child { grid-row: span 2; }
+        }
+        .gallery-img-container { overflow: hidden; width: 100%; height: 100%; position: relative; background: #eee; cursor: pointer; }
+        .gallery img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease, filter 0.2s; }
+        .gallery-img-container:hover img { transform: scale(1.03); filter: brightness(0.95); }
+
+        .content-layout { display: grid; grid-template-columns: 1fr; gap: 32px; align-items: start; }
+        @media (min-width: 900px) {
+            .content-layout { grid-template-columns: minmax(0, 1fr) 380px; gap: 48px; }
+            .booking-card { grid-column: 2; grid-row: 1; }
+            .details { grid-column: 1; }
+        }
+        .details h3 { font-size: 19px; margin-top: 0; font-weight: 700; }
+        .amenities-list { display: grid; grid-template-columns: 1fr; gap: 14px; margin: 20px 0; font-size: 14px; }
+        @media (min-width: 500px) {
+            .amenities-list { grid-template-columns: 1fr 1fr; }
+        }
+        .amenity-item { display: flex; align-items: center; gap: 10px; color: var(--dark); font-weight: 500; }
+
+        .reviews-section { margin-top: 32px; border-top: 1px solid var(--light-gray); padding-top: 24px; }
+        .review-card { background: var(--bg-subtle); padding: 16px; border-radius: var(--radius-md); margin-bottom: 12px; }
+        .review-header { display: flex; justify-content: space-between; font-weight: 600; margin-bottom: 6px; font-size: 13px; }
+        .review-text { font-size: 13px; color: #484848; margin: 0; line-height: 1.4; }
+
+        /* BOOKING CARD */
+        .booking-card { border: 1px solid var(--light-gray); border-radius: var(--radius-xl); padding: 22px; box-shadow: var(--shadow-md); background: #fff; }
+        @media (min-width: 900px) {
+            .booking-card { position: sticky; top: 90px; }
+        }
+        .price-box { font-size: 22px; font-weight: 800; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: baseline; }
+        .price-box span { font-size: 14px; font-weight: normal; color: var(--gray); }
+        
+        .dates-grid-airbnb { 
+            display: grid; grid-template-columns: 1fr 1fr; border: 1px solid #B0B0B0; 
+            border-radius: var(--radius-md); margin-bottom: 12px; overflow: hidden; cursor: pointer; 
+            transition: border-color 0.2s; background: #fff; 
+        }
+        .dates-grid-airbnb:hover { border-color: var(--dark); }
+        .date-field-ab { padding: 10px 12px; display: flex; flex-direction: column; }
+        .date-field-ab:first-child { border-right: 1px solid #B0B0B0; }
+        .date-field-ab label { font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--dark); letter-spacing: 0.5px; }
+        .date-field-ab span.val { font-size: 13px; font-weight: 600; color: var(--dark); margin-top: 3px; }
+
+        .input-group { margin-bottom: 12px; }
+        .input-group label { display: block; font-size: 10px; font-weight: 800; margin-bottom: 4px; text-transform: uppercase; color: var(--dark); letter-spacing: 0.5px; }
+        .input-group input, .input-group select { 
+            width: 100%; padding: 11px 12px; border: 1px solid #B0B0B0; border-radius: var(--radius-sm); 
+            font-size: 14px; box-sizing: border-box; font-family: inherit; outline: none; transition: border-color 0.2s; 
+        }
+        .input-group input:focus, .input-group select:focus { border-color: var(--dark); border-width: 2px; padding: 10px 11px; }
+
+        .phone-input-wrapper { display: flex; gap: 6px; }
+        .phone-country-select { width: 110px !important; flex-shrink: 0; font-size: 13px !important; padding: 11px 6px !important; }
+
+        .extras-section { border-top: 1px solid var(--light-gray); margin-top: 16px; padding-top: 14px; }
+        .extras-section h4 { font-size: 13px; margin: 0 0 10px 0; font-weight: 700; }
+        .extra-item { display: flex; justify-content: space-between; align-items: center; font-size: 13px; margin-bottom: 10px; }
+        .extra-item label { display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+        .extra-item input[type="checkbox"] { width: 17px; height: 17px; accent-color: var(--primary); cursor: pointer; }
+
+        .calc-summary { border-top: 1px solid var(--light-gray); margin-top: 14px; padding-top: 14px; font-size: 14px; }
+        .calc-row { display: flex; justify-content: space-between; margin-bottom: 6px; color: var(--gray); }
+        .calc-total { display: flex; justify-content: space-between; font-weight: 800; font-size: 17px; color: var(--dark); margin-top: 12px; border-top: 1px solid var(--light-gray); padding-top: 12px; }
+
+        .btn-reserve { 
+            background: linear-gradient(to right, #E61E4D 0%, #E31C5F 50%, #D70466 100%); 
+            color: white; border: none; width: 100%; padding: 14px; border-radius: var(--radius-md); 
+            font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 16px; transition: opacity 0.2s, transform 0.1s; 
+            box-shadow: 0 4px 12px rgba(227,28,95,0.25); 
+        }
+        .btn-reserve:hover { opacity: 0.95; }
+        .btn-reserve:active { transform: scale(0.98); }
+        .btn-reserve:disabled { background: var(--gray); cursor: not-allowed; box-shadow: none; }
+        
+        #alert-box { margin-top: 12px; padding: 12px; border-radius: var(--radius-sm); font-size: 13px; display: none; line-height: 1.4; }
+        #alert-box.success { background: #E6F4EA; color: #137333; border: 1px solid #CEEAD6; display: block !important; }
+        #alert-box.error { background: #FCE8E6; color: #C5221F; border: 1px solid #FAD2CF; display: block !important; font-weight: 600; }
+
+        /* MODALS */
+        .modal-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.5); z-index: 1000; display: none; 
+            justify-content: center; align-items: center; padding: 16px; backdrop-filter: blur(2px);
+        }
+        .airbnb-picker-card { 
+            background: #fff; border-radius: var(--radius-xl); padding: 24px; 
+            box-shadow: var(--shadow-lg); max-width: 750px; width: 100%; position: relative; 
+            max-height: 90vh; overflow-y: auto;
+        }
+        .admin-modal-card { 
+            background: #fff; border-radius: var(--radius-xl); padding: 28px; 
+            box-shadow: var(--shadow-lg); max-width: 380px; width: 100%; position: relative;
+        }
+        .picker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .picker-header h3 { margin: 0; font-size: 19px; font-weight: 800; }
+        .picker-sub { font-size: 13px; color: var(--gray); margin-top: 2px; }
+        
+        .calendar-nav-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .cal-nav-btn { background: #fff; border: 1px solid var(--light-gray); border-radius: 50%; width: 32px; height: 32px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .cal-nav-btn:hover { border-color: var(--dark); background: var(--bg-subtle); }
+
+        .calendars-flex { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; }
+        .single-month { flex: 1; min-width: 270px; max-width: 320px; }
+        .month-title { font-weight: 700; font-size: 15px; text-align: center; margin-bottom: 12px; }
+        .weekdays-grid, .days-grid { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 12px; }
+        .weekdays-grid { color: var(--gray); font-weight: 600; margin-bottom: 8px; }
+        
+        .day-cell { 
+            aspect-ratio: 1; display: flex; align-items: center; justify-content: center; 
+            font-size: 13px; font-weight: 600; cursor: pointer; border-radius: 50%; 
+            user-select: none; transition: background 0.15s; margin: 2px 0; 
+        }
+        .day-cell:hover:not(.empty):not(.disabled) { background: #f0f0f0; border: 1px solid var(--dark); }
+        .day-cell.empty { cursor: default; }
+        .day-cell.disabled { color: #DDD; cursor: not-allowed; text-decoration: line-through; }
+        .day-cell.selected-start, .day-cell.selected-end { background: var(--dark) !important; color: #fff !important; font-weight: 700; }
+        .day-cell.in-range { background: #F7F7F7; border-radius: 0; color: var(--dark); }
+
+        .picker-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; border-top: 1px solid var(--light-gray); padding-top: 16px; }
+        .clear-dates-btn { background: none; border: none; text-decoration: underline; font-weight: 600; cursor: pointer; font-size: 13px; color: var(--dark); }
+        .close-picker-btn { background: var(--dark); color: white; border: none; padding: 10px 20px; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; font-size: 13px; }
+
+        /* LIGHTBOX */
+        #lightbox-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.92); z-index: 2000; display: none;
+            flex-direction: column; justify-content: space-between; align-items: center;
+            padding: 20px; box-sizing: border-box;
+        }
+        .lightbox-header { width: 100%; display: flex; justify-content: space-between; align-items: center; color: #fff; font-size: 14px; font-weight: 600; }
+        .lightbox-close { background: none; border: none; color: #fff; font-size: 28px; cursor: pointer; padding: 4px 12px; }
+        .lightbox-content { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; height: 80vh; }
+        .lightbox-img { max-width: 90%; max-height: 100%; object-fit: contain; border-radius: 8px; box-shadow: var(--shadow-lg); }
+        .lightbox-btn { 
+            position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.2); 
+            color: #fff; border: none; border-radius: 50%; width: 44px; height: 44px; font-size: 20px; 
+            cursor: pointer; backdrop-filter: blur(4px); transition: background 0.2s; display: flex; align-items: center; justify-content: center;
+        }
+        .lightbox-btn:hover { background: rgba(255,255,255,0.4); }
+        .lightbox-prev { left: 10px; }
+        .lightbox-next { right: 10px; }
+
+        /* FOOTER */
+        .footer { 
+            border-top: 1px solid var(--light-gray); background: var(--bg-subtle); 
+            margin-top: 60px; padding: 24px 20px; color: var(--gray); font-size: 13px; 
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; 
+        }
+        .footer-links { display: flex; gap: 16px; flex-wrap: wrap; }
+        .footer-links a { color: var(--dark); text-decoration: none; font-weight: 500; }
+        .footer-links a:hover { text-decoration: underline; }
+    
+        .price-hero {
+            font-size: 26px; font-weight: 800; letter-spacing: -0.5px;
+            margin-bottom: 4px; line-height: 1.2;
+        }
+        .price-hero .currency { font-size: 22px; }
+        .price-hero-sub { font-size: 14px; color: var(--gray); margin-bottom: 14px; font-weight: 500; }
+        .fees-pill {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: #fff; border: 1px solid var(--light-gray);
+            border-radius: 24px; padding: 6px 12px; font-size: 12px; font-weight: 600;
+            margin-bottom: 12px; color: var(--dark);
+        }
+        .guest-stepper-panel {
+            border: 1px solid #B0B0B0; border-radius: var(--radius-md);
+            padding: 12px 14px; margin-top: 8px; display: none; background: #fff;
+        }
+        .guest-stepper-panel.open { display: block; }
+        .guest-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 0; border-bottom: 1px solid #f0f0f0;
+        }
+        .guest-row:last-child { border-bottom: none; }
+        .guest-row .info { font-size: 14px; font-weight: 600; }
+        .guest-row .info small { display: block; font-weight: 400; color: var(--gray); font-size: 12px; }
+        .stepper-btns { display: flex; align-items: center; gap: 10px; }
+        .stepper-btns button {
+            width: 32px; height: 32px; border-radius: 50%; border: 1px solid #b0b0b0;
+            background: #fff; font-size: 16px; cursor: pointer; line-height: 1;
+        }
+        .stepper-btns button:disabled { opacity: 0.35; cursor: not-allowed; }
+        .stepper-btns span { min-width: 18px; text-align: center; font-weight: 600; }
+        .map-card {
+            margin-top: 28px; border-top: 1px solid var(--light-gray); padding-top: 24px;
+        }
+        .map-card h3 { margin: 0 0 8px; font-size: 18px; }
+        .map-card p { margin: 0 0 12px; color: var(--gray); font-size: 14px; }
+        .map-frame {
+            width: 100%; height: 220px; border: 0; border-radius: var(--radius-lg);
+            background: #e5e7eb;
+        }
+        .map-links { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+        .map-links a {
+            font-size: 13px; font-weight: 600; color: var(--dark);
+            text-decoration: underline;
+        }
+        .pay-note { text-align: center; font-size: 12px; color: var(--gray); margin-top: 10px; }
+
+    
+        .booking-card {
+            width: 100%;
+            max-width: 380px;
+            justify-self: end;
+        }
+        .guest-stepper-panel {
+            position: absolute;
+            left: 0; right: 0;
+            z-index: 40;
+            box-shadow: 0 8px 28px rgba(0,0,0,.12);
+            margin-top: 4px;
+            max-height: 340px;
+            overflow-y: auto;
+        }
+        .booking-form { position: relative; }
+        .input-group { position: relative; margin-bottom: 12px; }
+        .field-error { border-color: #e11d48 !important; }
+        .error-text { color: #e11d48; font-size: 12px; margin-top: 4px; display: none; }
+        .error-text.show { display: block; }
+        .review-form-box {
+            margin-top: 16px; padding: 14px; border: 1px solid var(--light-gray);
+            border-radius: 12px; background: #fafafa;
+        }
+        .review-form-box h4 { margin: 0 0 10px; font-size: 14px; }
+        .housing-type-row {
+            display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;
+        }
+        .housing-type-row button {
+            border: 1px solid #ddd; background: #fff; border-radius: 20px;
+            padding: 6px 12px; font-size: 12px; cursor: pointer;
+        }
+        .housing-type-row button.active {
+            border-color: var(--dark); background: var(--dark); color: #fff;
+        }
+
+    
+        .news-card {
+            border: 1px solid #eee; border-radius: 16px; overflow: hidden; background: #fff;
+            transition: box-shadow .2s; display: flex; flex-direction: column;
+        }
+        .news-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,.08); }
+        .news-card img { width: 100%; height: 160px; object-fit: cover; background: #f1f5f9; }
+        .news-card .body { padding: 14px; flex: 1; display: flex; flex-direction: column; }
+        .news-card .tag {
+            display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 20px;
+            background: #f1f5f9; color: #475569; margin-right: 4px; margin-bottom: 6px;
+        }
+        .news-card h3 { margin: 0 0 8px; font-size: 16px; font-weight: 700; line-height: 1.3; }
+        .news-card p { margin: 0 0 10px; font-size: 13px; color: #64748b; line-height: 1.45; flex: 1; }
+        .news-card .meta { font-size: 11px; color: #94a3b8; }
+        .news-card video { width: 100%; max-height: 180px; background: #000; }
+
+    
+        /* Responsive polish v2.21 */
+        @media (max-width: 899px) {
+            .content-layout { grid-template-columns: 1fr !important; }
+            .booking-card {
+                position: relative !important; top: auto !important;
+                max-width: 100% !important; justify-self: stretch;
+                order: -1; margin-bottom: 24px;
+            }
+            .details { order: 1; }
+            .gallery { grid-template-columns: 1fr !important; }
+            .gallery img { height: 220px !important; }
+            .search-pill { flex-wrap: wrap; }
+            .nav-categories { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            .news-card img { height: 140px; }
+            .map-frame { height: 180px; }
+            .price-hero { font-size: 22px; }
+        }
+        @media (max-width: 480px) {
+            .container { padding-left: 12px; padding-right: 12px; }
+            .btn-reserve { font-size: 15px; padding: 14px; }
+            .dates-grid-airbnb { font-size: 13px; }
+        }
+
+    
+        /* Unified Airbnb-style cards v2.28 */
+        .listings-grid, .rooms-grid, #roomsGrid, .catalog {
+            display: grid !important;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px 20px;
+        }
+        .card, .room-card, .listing-card {
+            border-radius: 16px !important;
+            overflow: hidden;
+            background: #fff;
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+        .card:hover, .room-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(0,0,0,.1) !important;
+        }
+        .card-img-wrapper, .room-card img, .listing-card img {
+            border-radius: 16px !important;
+            aspect-ratio: 20 / 19;
+            object-fit: cover;
+        }
+        .card-title, .room-card h3 { font-size: 15px !important; font-weight: 600 !important; letter-spacing: -0.01em; }
+        .card-price { font-size: 15px !important; }
+        .card-price strong, .card-price b { font-weight: 700; }
+        /* Public theme */
+        /* public-dark-contrast-v29 */
+        html[data-theme="dark"] body { background: #0b0b0b !important; color: #f5f5f5 !important; }
+        html[data-theme="dark"] .header, html[data-theme="dark"] .categories {
+            background: #111 !important; color: #f5f5f5 !important; border-color: #333 !important;
+        }
+        html[data-theme="dark"] .category-item { color: #ccc !important; }
+        html[data-theme="dark"] .category-item.active { color: #fff !important; border-bottom-color: #fff !important; }
+        html[data-theme="dark"] .search-pill { background: #1a1a1a !important; color: #eee !important; border-color: #333 !important; }
+        html[data-theme="dark"] .card-title, html[data-theme="dark"] .card-price { color: #fff !important; }
+        html[data-theme="dark"] .map-banner, html[data-theme="dark"] .promo-banner {
+            background: #1a1a1a !important; color: #eee !important;
+        }
+        html[data-theme="dark"] .card, html[data-theme="dark"] .booking-card,
+        html[data-theme="dark"] .news-card, html[data-theme="dark"] .review-card {
+            background: #171717 !important; color: #eee !important; border-color: #333 !important;
+        }
+        html[data-theme="dark"] .card-subtitle, html[data-theme="dark"] .card-price span { color: #aaa !important; }
+        .public-theme-btn {
+            position: fixed; bottom: 16px; right: 16px; z-index: 50;
+            border: none; border-radius: 999px; padding: 10px 14px;
+            background: #222; color: #fff; font-size: 13px; cursor: pointer;
+            box-shadow: 0 4px 14px rgba(0,0,0,.2);
+        }
+        html[data-theme="dark"] .public-theme-btn { background: #f5f5f5; color: #111; }
+        #pwaPublicInstall {
+            display: none; position: fixed; bottom: 16px; left: 16px; z-index: 50;
+            background: #FF385C; color: #fff; border: none; border-radius: 12px;
+            padding: 12px 16px; font-size: 13px; font-weight: 600; cursor: pointer;
+            box-shadow: 0 4px 14px rgba(255,56,92,.35);
+        }
+
+    
+        /* Catalog grid + empty state v2.31 */
+        #rooms-grid.grid, .grid#rooms-grid, #rooms-grid {
+            display: grid !important;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 28px 22px;
+            min-height: 120px;
+            margin-bottom: 40px;
+        }
+        #rooms-grid .card {
+            border-radius: 16px;
+            overflow: hidden;
+            cursor: pointer;
+            background: #fff;
+            border: 1px solid transparent;
+        }
+        #rooms-grid .card:hover {
+            box-shadow: 0 12px 28px rgba(0,0,0,.1);
+            transform: translateY(-2px);
+        }
+        #rooms-grid .card-img-wrapper {
+            position: relative;
+            aspect-ratio: 20/19;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #f0f0f0;
+        }
+        #rooms-grid .card-img-wrapper img {
+            width: 100%; height: 100%; object-fit: cover; display: block;
+        }
+        #rooms-grid .card-badge {
+            position: absolute; top: 12px; left: 12px;
+            background: rgba(255,255,255,.92); padding: 4px 10px;
+            border-radius: 20px; font-size: 11px; font-weight: 700;
+        }
+        .catalog-empty {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 48px 20px;
+            color: #717171;
+            border: 1px dashed #ddd;
+            border-radius: 16px;
+            background: #fafafa;
+        }
+        .catalog-empty strong { display: block; font-size: 18px; color: #222; margin-bottom: 8px; }
+        /* News redesign */
+        #news-section {
+            margin: 48px 0 24px !important;
+            padding-top: 24px;
+            border-top: 1px solid #ebebeb;
+        }
+        #news-section h2 {
+            font-size: 22px !important;
+            letter-spacing: -0.02em;
+        }
+        #news-grid, .news-grid {
+            display: grid !important;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 24px;
+        }
+        .news-card {
+            border-radius: 16px !important;
+            overflow: hidden;
+            border: 1px solid #ebebeb !important;
+            background: #fff;
+            transition: box-shadow .2s;
+            display: flex;
+            flex-direction: column;
+            min-height: 280px;
+        }
+        .news-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,.08); }
+        .news-card .cover {
+            height: 160px; background: linear-gradient(135deg, #e0f2fe, #fce7f3);
+            background-size: cover; background-position: center;
+        }
+        .news-card .body { padding: 16px; flex: 1; display: flex; flex-direction: column; }
+        .news-card h3 { font-size: 16px; margin: 0 0 6px; font-weight: 700; color: #222; }
+        .news-card .excerpt { font-size: 14px; color: #717171; flex: 1; line-height: 1.45; }
+        .news-card .meta { font-size: 12px; color: #999; margin-top: 12px; }
+        .section-label {
+            font-size: 13px; font-weight: 600; color: #717171;
+            text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px;
+        }
+
+    
+        /* public dark v2.41 */
+        html[data-theme="dark"] .header,
+        html[data-theme="dark"] .categories,
+        html[data-theme="dark"] .footer {
+            background: #111 !important;
+            color: #f5f5f5 !important;
+            border-color: #333 !important;
+        }
+        html[data-theme="dark"] .card,
+        html[data-theme="dark"] .booking-card,
+        html[data-theme="dark"] .map-widget-banner,
+        html[data-theme="dark"] .news-card {
+            background: #1a1a1a !important;
+            color: #eee !important;
+            border-color: #333 !important;
+        }
+        html[data-theme="dark"] .card-title,
+        html[data-theme="dark"] .card-price,
+        html[data-theme="dark"] .room-heading { color: #fff !important; }
+        html[data-theme="dark"] .card-subtitle,
+        html[data-theme="dark"] .footer-links a { color: #aaa !important; }
+        html[data-theme="dark"] #search-overlay > div {
+            background: #1a1a1a !important;
+            color: #eee !important;
+        }
+        html[data-theme="dark"] #search-overlay input,
+        html[data-theme="dark"] #search-overlay select {
+            background: #111 !important;
+            color: #eee !important;
+            border-color: #444 !important;
+        }
+
+    
+        /* Adaptive public v2.50 */
+        html { -webkit-text-size-adjust: 100%; }
+        body { overflow-x: hidden; max-width: 100vw; }
+        img, video, iframe { max-width: 100%; height: auto; }
+        .search-bar-mock, .header, .categories { max-width: 100%; }
+        @media (max-width: 768px) {
+            .search-bar-mock { width: 100% !important; max-width: 100%; }
+            .card-grid, .rooms-grid, #rooms-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+        @media (max-width: 480px) {
+            body { font-size: 14px; }
+            button, .map-btn { min-height: 44px; }
+        }
+    </style>
+<link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#FF385C">
+    <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js').catch(function(){});
+      });
+    }
+    </script>
+</head>
+<body>
+
+    <div id="verify-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2200;align-items:center;justify-content:center;padding:16px">
+        <div style="background:#fff;border-radius:16px;max-width:420px;width:100%;padding:22px;box-shadow:0 20px 50px rgba(0,0,0,.25)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                <h3 style="margin:0;font-size:18px">Проверка брони</h3>
+                <button type="button" onclick="closeVerifyModal()" style="border:none;background:#f0f0f0;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px">×</button>
+            </div>
+            <p style="font-size:13px;color:#717171;margin:0 0 12px">Введите код из SMS / Telegram / ваучера</p>
+            <input type="text" id="verify-token-input" placeholder="Код или токен" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;box-sizing:border-box;font-size:15px">
+            <button type="button" onclick="submitVerifyModal()" style="width:100%;margin-top:12px;padding:12px;background:#FF385C;color:#fff;border:none;border-radius:10px;font-weight:700;cursor:pointer">Проверить</button>
+            <div id="verify-result" style="margin-top:14px;font-size:13px;line-height:1.5;display:none"></div>
+        </div>
+    </div>
+
+
+    <div id="map-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2100;align-items:center;justify-content:center;padding:16px">
+        <div style="background:#fff;border-radius:16px;max-width:640px;width:100%;padding:20px;max-height:90vh;overflow:auto">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                <h3 style="margin:0;font-size:18px">Расположение</h3>
+                <button type="button" onclick="document.getElementById('map-modal').style.display='none'" style="border:none;background:#eee;width:32px;height:32px;border-radius:50%;cursor:pointer">×</button>
+            </div>
+            <p id="map-address" style="color:#717171;font-size:14px;margin:0 0 12px"></p>
+            <div id="map-frame-wrap" style="border-radius:12px;overflow:hidden;background:#f0f0f0;aspect-ratio:16/10">
+                <iframe id="map-iframe" style="width:100%;height:100%;border:0" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+            <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+                <a id="map-open-ext" href="#" target="_blank" rel="noopener" style="padding:10px 16px;background:#222;color:#fff;border-radius:10px;text-decoration:none;font-size:13px;font-weight:600">Открыть в картах</a>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="search-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:2000;align-items:flex-start;justify-content:center;padding:80px 16px 24px">
+        <div style="background:#fff;border-radius:24px;max-width:560px;width:100%;padding:24px;box-shadow:0 16px 48px rgba(0,0,0,.2)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+                <h3 style="margin:0;font-size:18px">Поиск жилья</h3>
+                <button type="button" onclick="closeSearchOverlay()" style="border:none;background:#f0f0f0;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px">×</button>
+            </div>
+            <label style="font-size:12px;font-weight:700">Куда</label>
+            <select id="search-category" style="width:100%;padding:12px;margin:6px 0 14px;border:1px solid #ddd;border-radius:12px;font-size:14px">
+                <option value="all">Любое направление / все объекты</option>
+                <option value="yurt">Юрты Deluxe</option>
+                <option value="module">Модульные студии</option>
+                <option value="mountain">Вид на горы</option>
+                <option value="bath">Чан / Баня</option>
+            </select>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div>
+                    <label style="font-size:12px;font-weight:700">Заезд</label>
+                    <input type="date" id="search-checkin" style="width:100%;padding:12px;margin-top:6px;border:1px solid #ddd;border-radius:12px;box-sizing:border-box">
+                </div>
+                <div>
+                    <label style="font-size:12px;font-weight:700">Выезд</label>
+                    <input type="date" id="search-checkout" style="width:100%;padding:12px;margin-top:6px;border:1px solid #ddd;border-radius:12px;box-sizing:border-box">
+                </div>
+            </div>
+            <label style="font-size:12px;font-weight:700;display:block;margin-top:14px">Гости</label>
+            <input type="number" id="search-guests" min="1" max="20" value="2" style="width:100%;padding:12px;margin-top:6px;border:1px solid #ddd;border-radius:12px;box-sizing:border-box">
+            <button type="button" onclick="applySearchOverlay()" style="width:100%;margin-top:18px;padding:14px;background:#FF385C;color:#fff;border:none;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer">Искать</button>
+        </div>
+    </div>
+
+    <header class="header">
+        <a class="logo" onclick="switchView('catalog')">
+            <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                <path d="M16 2C9.373 2 4 7.373 4 14c0 8 12 16 12 16s12-8 12-16c0-6.627-5.373-12-12-12zm0 16c-2.209 0-4-1.791-4-4s1.791-4 4-4 4 1.791 4 4-1.791 4-4 4z"/>
+            </svg>
+            Ышкын
+        </a>
+        
+        <div class="search-bar-mock" onclick="openSearchOverlay();" title="Показать все объекты">
+            <span><span onclick="onSearchPill('dir')" style="cursor:pointer">Любое направление</span></span>
+            <div class="divider desktop-only-block"></div>
+            <span class="desktop-only-inline"><span onclick="onSearchPill('dates')" style="cursor:pointer">Любая неделя</span></span>
+            <div class="divider"></div>
+            <span style="color: var(--gray);"><span onclick="onSearchPill('guests')" style="cursor:pointer">Гости</span></span>
+            <button class="search-btn-icon" aria-label="Поиск">🔍</button>
+        </div>
+
+        <div class="header-controls">
+            <div class="user-menu" onclick="openAdminModal()" title="Панель управления / Меню">
+                <span style="font-size: 15px; font-weight: bold;">☰</span>
+                <span style="background: var(--dark); color: white; border-radius: 50%; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold;">Ы</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Панель категорий -->
+    <div class="categories">
+        <div class="category-item active" onclick="filterCategory('all', this)">
+            <div class="category-icon-box">⛺</div>
+            <span>Все объекты</span>
+        </div>
+        <div class="category-item" onclick="filterCategory('yurt', this)">
+            <div class="category-icon-box">🏕</div>
+            <span>Юрты Deluxe</span>
+        </div>
+        <div class="category-item" onclick="filterCategory('module', this)">
+            <div class="category-icon-box">🏡</div>
+            <span>Модульные студии</span>
+        </div>
+        <div class="category-item" onclick="filterCategory('mountain', this)">
+            <div class="category-icon-box">🌄</div>
+            <span>Вид на горы</span>
+        </div>
+        <div class="category-item" onclick="filterCategory('bath', this)">
+            <div class="category-icon-box">♨️</div>
+            <span>Чан / Баня</span>
+        </div>
+    </div>
+
+    <!-- КАТАЛОГ -->
+    <div id="catalog-view" class="view-section active">
+        <main class="container">
+            <div class="map-widget-banner">
+                <div>
+                    <h3>Ищете жилье в живописной зоне?</h3>
+                    <p>Откройте интерактивную карту расположения наших юрт и студий.</p>
+                </div>
+                <button class="map-btn" onclick="openMapWidget()">На карте</button>
+            </div>
+
+            <h2 style="margin-bottom: 20px; font-size: 20px; font-weight: 800;">Популярное жилье</h2>
+            <div class="grid" id="rooms-grid"></div>
+
+        <section id="news-section" style="margin:32px 0 16px;display:none">
+            <div class="section-label">Журнал</div>
+            <h2 style="font-size:22px;margin:0 0 20px;font-weight:800">Новости и блог</h2>
+            <div id="news-grid" class="news-grid"></div>
+        </section>
+
+        </main>
+    </div>
+
+    <!-- ДЕТАЛЬНАЯ СТРАНИЦА -->
+    <div id="detail-view" class="view-section">
+        <main class="container">
+            <a class="back-link" onclick="switchView('catalog')">← Назад к каталогу</a>
+            <h1 class="room-heading" id="det-title">Название объекта</h1>
+            <p style="margin-top: 0; margin-bottom: 20px; color: var(--gray); font-size: 14px;" id="det-subtitle">2 гостя · 1 спальня · 1 кровать · 1 ванная</p>
+
+            <div class="gallery" id="det-gallery"></div>
+
+            <div class="content-layout">
+                <div class="details">
+                    <h3><span id="det-host-line">Жилье целиком</span></h3>
+                    <p id="det-desc" style="line-height: 1.5; color: #484848; font-size: 15px;">Комфортабельное размещение со всеми удобствами в живописном месте.</p>
+                    <hr style="margin: 24px 0; border: none; border-top: 1px solid var(--light-gray);">
+                    
+                    <h3>Что есть в помещении</h3>
+                    <div class="amenities-list">
+                        <!-- заполняется из админки -->
+                    </div>
+
+                    <div class="map-card" id="map-card">
+                        <h3>Где вы будете</h3>
+                        <p id="map-address">Чолпон-Ата, Иссык-Куль</p>
+                        <iframe id="map-frame" class="map-frame" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+                        <div class="map-links">
+                            <a id="map-link-yandex" href="#" target="_blank" rel="noopener">Яндекс.Карты</a>
+                            <a id="map-link-google" href="#" target="_blank" rel="noopener">Google Maps</a>
+                        </div>
+                    </div>
+
+                    <div class="reviews-section">
+                        <h3>Отзывы гостей</h3>
+                    <div id="reviews-list"></div>
+                    <div class="review-form-box">
+                        <h4>Оставить отзыв</h4>
+                        <select id="review-room" style="width:100%;margin-bottom:8px;padding:10px;border:1px solid #ddd;border-radius:8px">
+                            <option value="">Общий отзыв (все объекты)</option>
+                        </select>
+                        <div id="review-stars" style="margin-bottom:8px;font-size:22px;cursor:pointer;letter-spacing:2px" data-rating="5">
+                            <span data-v="1">★</span><span data-v="2">★</span><span data-v="3">★</span><span data-v="4">★</span><span data-v="5">★</span>
+                        </div>
+                        <input type="text" id="review-author" placeholder="Ваше имя" style="width:100%;margin-bottom:8px;padding:10px;border:1px solid #ddd;border-radius:8px">
+                        <textarea id="review-body" rows="3" placeholder="Как прошёл отдых?" style="width:100%;margin-bottom:8px;padding:10px;border:1px solid #ddd;border-radius:8px;resize:vertical"></textarea>
+                        <button type="button" class="btn-reserve" style="padding:10px;font-size:14px" onclick="submitPublicReview()">Отправить на модерацию</button>
+                        <p id="review-form-msg" style="font-size:12px;color:#717171;margin:8px 0 0"></p>
+                    </div>
+                    </div>
+                </div>
+
+                <div class="booking-card">
+                    <div id="public-rate-hint" style="display:none;font-size:12px;color:#4f46e5;background:#eef2ff;padding:6px 10px;border-radius:8px;margin-bottom:10px;"></div>
+                    <div class="fees-pill">✓ В цену входят все сборы</div>
+                    <div class="price-hero">
+                        <span id="price-hero-amount">0</span>
+                        <span class="currency" id="price-hero-currency">сом</span>
+                        <span style="font-size:16px;font-weight:600;color:#717171" id="price-hero-nights">за 1 ночь</span>
+                    </div>
+                    <div class="price-box" style="font-size:13px;color:#717171;margin-bottom:12px">
+                        <span id="det-price">0</span> <span id="det-currency-label">сом</span> / ночь · <span id="det-rating">★ 5.0</span>
+                    </div>
+
+                    <form id="booking-form">
+                        <div class="housing-type-row" id="housing-type-row" title="Тип жилья (фильтр каталога)"></div>
+                        <div class="dates-grid-airbnb" onclick="openAirbnbCalendar()">
+                            <div class="date-field-ab">
+                                <label>Прибытие</label>
+                                <span class="val" id="display-checkin">Выберите дату</span>
+                            </div>
+                            <div class="date-field-ab">
+                                <label>Выезд</label>
+                                <span class="val" id="display-checkout">Выберите дату</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Для кого</label>
+                            <div class="dates-grid-airbnb" style="grid-template-columns:1fr;cursor:pointer" onclick="toggleGuestPanel()">
+                                <div class="date-field-ab">
+                                    <label>Гости</label>
+                                    <span class="val" id="guest-summary">1 гость</span>
+                                </div>
+                            </div>
+                            <div class="guest-stepper-panel" id="guest-stepper-panel">
+                                <div class="guest-row">
+                                    <div class="info">Взрослые<small>От 13 лет</small></div>
+                                    <div class="stepper-btns">
+                                        <button type="button" onclick="event.stopPropagation();changeGuests('adults',-1)">−</button>
+                                        <span id="guest-adults">1</span>
+                                        <button type="button" onclick="event.stopPropagation();changeGuests('adults',1)">+</button>
+                                    </div>
+                                </div>
+                                <div class="guest-row">
+                                    <div class="info">Дети<small>2–12 лет</small></div>
+                                    <div class="stepper-btns">
+                                        <button type="button" onclick="event.stopPropagation();changeGuests('children',-1)">−</button>
+                                        <span id="guest-children">0</span>
+                                        <button type="button" onclick="event.stopPropagation();changeGuests('children',1)">+</button>
+                                    </div>
+                                </div>
+                                <div class="guest-row">
+                                    <div class="info">Младенцы<small>Младше 2</small></div>
+                                    <div class="stepper-btns">
+                                        <button type="button" onclick="event.stopPropagation();changeGuests('infants',-1)">−</button>
+                                        <span id="guest-infants">0</span>
+                                        <button type="button" onclick="event.stopPropagation();changeGuests('infants',1)">+</button>
+                                    </div>
+                                </div>
+                                <div class="guest-row">
+                                    <div class="info">Питомцы<small><a href="#" onclick="event.preventDefault();event.stopPropagation();" style="color:inherit;text-decoration:underline">Путешествуете с животным-помощником?</a></small></div>
+                                    <div class="stepper-btns">
+                                        <button type="button" onclick="event.stopPropagation();changeGuests('pets',-1)">−</button>
+                                        <span id="guest-pets">0</span>
+                                        <button type="button" onclick="event.stopPropagation();changeGuests('pets',1)">+</button>
+                                    </div>
+                                </div>
+                                <p id="guest-limit-note" style="font-size:12px;color:#717171;margin:10px 0 0;line-height:1.4">Жилье рассчитано максимум на 2 гостей, не считая младенцев. Проживание с питомцами не разрешается.</p>
+                                <button type="button" class="clear-dates-btn" style="margin-top:10px" onclick="event.stopPropagation();toggleGuestPanel(false)">Закрыть</button>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Имя гостя</label>
+                            <input type="text" id="guest-name" placeholder="Имя и фамилия" 
+                                   pattern="^[А-Яа-яЁёA-Za-z\s\-]{2,}$" 
+                                   title="Имя должно содержать только буквы (минимум 2 символа)" required>
+                            <div class="error-text" id="err-guest-name">Укажите имя (минимум 2 буквы)</div>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Номер телефона</label>
+                            <div class="phone-input-wrapper">
+                                <select id="phone-country-code" class="phone-country-select" onchange="onCountryCodeChange()">
+                                    <option value="+996" data-mask="(###) ##-##-##" data-placeholder="(555) 00-11-22">🇰🇬 +996</option>
+                                    <option value="+995" data-mask="(###) ##-##-##" data-placeholder="(599) 12-34-56">🇬🇪 +995</option>
+                                    <option value="+7" data-mask="(###) ###-##-##" data-placeholder="(701) 123-45-67">🇰🇿/🇷🇺 +7</option>
+                                    <option value="+998" data-mask="(##) ###-##-##" data-placeholder="(90) 123-45-67">🇺ℤ +998</option>
+                                    <option value="+90" data-mask="(###) ###-##-##" data-placeholder="(532) 123-45-67">🇹🇷 +90</option>
+                                    <option value="+1" data-mask="(###) ###-####" data-placeholder="(555) 019-2834">🇺🇸 +1</option>
+                                    <option value="+44" data-mask="#### ######" data-placeholder="7911 123456">🇬🇧 +44</option>
+                                    <option value="other" data-mask="" data-placeholder="Ваш номер с кодом">🌐 Другой</option>
+                                </select>
+                                <input type="tel" id="guest-phone" placeholder="(555) 00-11-22" autocomplete="tel" required oninput="formatPhoneInput(this)">
+                            </div>
+                            <div class="error-text" id="err-guest-phone">Укажите корректный телефон</div>
+                        </div>
+
+                        <div class="extras-section">
+                            <h4>Дополнительные услуги:</h4>
+                            <div id="dynamic-extras"></div>
+                        </div>
+
+                        <div class="calc-summary">
+                            <div class="calc-row">
+                                <span id="calc-nights">0 ноч. × 0 сом</span>
+                                <span id="calc-base-total">0 сом</span>
+                            </div>
+                            <div class="calc-row">
+                                <span>Доп. услуги:</span>
+                                <span id="calc-extras-total">0 сом</span>
+                            </div>
+                            <div class="calc-total">
+                                <span>Итого к оплате:</span>
+                                <span id="calc-final-total">0 сом</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-reserve" id="submit-btn">Забронировать</button>
+                    </form>
+
+                    <div id="alert-box"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- КАЛЕНДАРЬ -->
+    <div id="airbnb-calendar-modal" class="modal-overlay" onclick="closeAirbnbCalendar()">
+        <div class="airbnb-picker-card" onclick="event.stopPropagation()">
+            <div class="picker-header">
+                <div>
+                    <h3 id="calendar-nights-title">Выберите даты</h3>
+                    <div class="picker-sub">Минимальный срок проживания: 1 ночь</div>
+                </div>
+                <button onclick="closeAirbnbCalendar()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--gray);">✕</button>
+            </div>
+            
+            <div class="calendar-nav-bar">
+                <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
+                <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
+            </div>
+
+            <div class="calendars-flex" id="calendars-container"></div>
+
+            <div class="picker-footer">
+                <button class="clear-dates-btn" onclick="clearDates()">Сбросить даты</button>
+                <button class="close-picker-btn" onclick="closeAirbnbCalendar()">Готово</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ОКНО АВТОРИЗАЦИИ АДМИНКИ -->
+    <div id="admin-login-modal" class="modal-overlay" onclick="closeAdminModal()">
+        <div class="admin-modal-card" onclick="event.stopPropagation()">
+            <div class="picker-header">
+                <h3>Вход в панель</h3>
+                <button onclick="closeAdminModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--gray);">✕</button>
+            </div>
+            <p style="font-size: 13px; color: var(--gray); margin-top: -8px; margin-bottom: 16px;">Введите данные учетной записи администратора</p>
+
+            <form id="admin-login-form" onsubmit="handleAdminLogin(event)">
+                <div class="input-group">
+                    <label for="admin-username">Логин</label>
+                    <input type="text" id="admin-username" placeholder="admin" required autocomplete="username">
+                </div>
+                <div class="input-group">
+                    <label for="admin-password">Пароль</label>
+                    <input type="password" id="admin-password" placeholder="••••••••" required autocomplete="current-password">
+                </div>
+
+                <div id="admin-login-error" style="display: none; color: #C5221F; font-size: 13px; margin-bottom: 12px; font-weight: 600;"></div>
+
+                <button type="submit" class="btn-reserve" style="margin-top: 8px;">Войти</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ЛАЙТБОКС -->
+    <div id="lightbox-modal">
+        <div class="lightbox-header">
+            <span id="lightbox-counter">1 из 5</span>
+            <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+        </div>
+        <div class="lightbox-content">
+            <button class="lightbox-btn lightbox-prev" onclick="navigateLightbox(-1)">‹</button>
+            <img id="lightbox-img" class="lightbox-img" src="" alt="Просмотр фото">
+            <button class="lightbox-btn lightbox-next" onclick="navigateLightbox(1)">›</button>
+        </div>
+        <div style="height: 20px;"></div>
+    </div>
+
+    <footer class="footer">
+        <div>© 2026 Ышкын, Inc. · Все права защищены · <span id="site-version">v2.36</span></div>
+        <div class="footer-links">
+            <a href="/privacy">Конфиденциальность</a>
+            <a href="/roadmap">Дорожная карта</a>
+            <a href="/sitemap">Карта сайта</a>
+            <a href="#" onclick="openVerifyModal();return false;">Проверка брони</a>
+        </div>
+        <div style="margin-top:12px">
+            <select id="lang-switch" onchange="typeof loadLocale==='function'&&loadLocale(this.value)" style="border:1px solid #ddd;border-radius:8px;padding:6px 10px;font-size:13px">
+                <option value="ru">Русский</option>
+                <option value="en">English</option>
+                <option value="ky">Кыргызча</option>
+            </select>
+        </div>
+    </footer>
+
+    <script>
+        var roomsData = {}; window.roomsData = roomsData;
+
+        async function loadRoomsFromApi() {
+            const grid = document.getElementById('rooms-grid');
+            if (grid) grid.innerHTML = '<div class="catalog-empty"><strong>Загрузка объектов…</strong></div>';
+            try {
+                const res = await fetch('/api/rooms');
+                if (!res.ok) throw new Error('API rooms failed');
+                const list = await res.json();
+                roomsData = {}; window.roomsData = roomsData;
+                (list || []).forEach(r => {
+                    const id = r.id ?? r.Id;
+                    const images = (r.images || r.Images || []).map(img => img.url || img.Url).filter(Boolean);
+                    if (images.length === 0) {
+                        images.push('https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=1200&q=80');
+                    }
+                    let cats = (r.categories || r.Categories || r.tags || r.Tags || '').toString().split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+                    // normalize aliases
+                    cats = cats.map(function(c) {
+                        if (/юрт|yurt/.test(c)) return 'yurt';
+                        if (/модул|module|studio/.test(c)) return 'module';
+                        if (/гор|mountain/.test(c)) return 'mountain';
+                        if (/чан|бан|bath/.test(c)) return 'bath';
+                        return c;
+                    });
+                    let amenities = [];
+                    try { amenities = JSON.parse(r.amenitiesJson || r.AmenitiesJson || '[]'); } catch(e) {}
+                    let extras = [];
+                    try { extras = JSON.parse(r.extrasJson || r.ExtrasJson || '[]'); } catch(e) {}
+                    if (!Array.isArray(amenities)) amenities = [];
+                    if (!Array.isArray(extras)) extras = [];
+                    roomsData[id] = {
+                        title: r.title || r.Title,
+                        subtitle: r.subtitle || r.Subtitle || '',
+                        price: r.price || r.Price || 0,
+                        rating: "5.0",
+                        categories: cats.length ? cats : ["module"],
+                        desc: r.description || r.Description || '',
+                        images,
+                        amenities,
+                        extras
+                    };
+                });
+            } catch (e) {
+                console.warn('loadRoomsFromApi', e);
+                const grid = document.getElementById('rooms-grid');
+                if (grid) grid.innerHTML = '<div class="catalog-empty"><strong>Не удалось загрузить объекты</strong>Проверьте /api/rooms и консоль (F12).</div>';
+            }
+            window.roomsData = roomsData;
+            renderCatalog('all');
+        }
+
+
+        let currentRoomId = 1;
+        let checkInDate = null;
+        let checkOutDate = null;
+        let currentGalleryImages = [];
+        let currentLightboxIndex = 0;
+
+        
+        function renderRoomAmenities(room) {
+            const box = document.querySelector('.amenities-list');
+            if (!box) return;
+            const list = (room.amenities && room.amenities.length)
+                ? room.amenities
+                : ['Wi-Fi', 'Душ и санузел'];
+            const icons = ['📺','📶','🌡','☕','🚿','🌿','🔥','🧺','🅿️','❄️'];
+            box.innerHTML = list.map((a,i) =>
+                `<div class="amenity-item"><span>${icons[i % icons.length]}</span> ${a}</div>`
+            ).join('');
+        }
+
+        function renderRoomExtras(room) {
+            const host = document.getElementById('dynamic-extras');
+            if (!host) return;
+            const extras = (room.extras && room.extras.length) ? room.extras : [];
+            if (!extras.length) {
+                host.innerHTML = '<p style="color:#717171;font-size:13px;margin:0">Нет доп. услуг для этого объекта</p>';
+                return;
+            }
+            host.innerHTML = extras.map(ex => {
+                const name = (ex.name || ex.Name || '').replace(/"/g, '&quot;');
+                const price = ex.price || ex.Price || 0;
+                return `<div class="extra-item"><label><input type="checkbox" class="extra-service" data-name="${name}" data-price="${price}"> ${name}</label><span>${price} сом</span></div>`;
+            }).join('');
+            host.querySelectorAll('.extra-service').forEach(cb => cb.addEventListener('change', calculateTotal));
+        }
+
+
+        function formatDateLocal(d) {
+            if (!d) return '';
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        }
+
+        function renderCatalog(filter = 'all') {
+            const grid = document.getElementById('rooms-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            let count = 0;
+            for (let id in roomsData) {
+                let room = roomsData[id];
+                const cats = (room.categories || []).map(function(c){ return String(c).toLowerCase().trim(); });
+                const f = (filter || 'all').toLowerCase();
+                let matchesFilter = (f === 'all');
+                if (!matchesFilter) {
+                    matchesFilter = cats.some(function(c) {
+                        return c === f || c.indexOf(f) !== -1 || f.indexOf(c) !== -1;
+                    });
+                    if (!matchesFilter) {
+                        const blob = ((room.title||'') + ' ' + (room.subtitle||'') + ' ' + (room.desc||'')).toLowerCase();
+                        if (f === 'yurt' && /юрт|yurt/.test(blob)) matchesFilter = true;
+                        if (f === 'module' && /модул|studio|module/.test(blob)) matchesFilter = true;
+                        if (f === 'mountain' && /гор|mountain|панорам/.test(blob)) matchesFilter = true;
+                        if (f === 'bath' && /чан|бан|bath|sauna/.test(blob)) matchesFilter = true;
+                    }
+                }
+                if (!matchesFilter) continue;
+                count++;
+                let card = document.createElement('div');
+                card.className = 'card';
+                card.onclick = function() { openRoomDetail(id); };
+                const img = (room.images && room.images[0]) ? room.images[0] : 'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=800&q=80';
+                card.innerHTML =
+                    '<div class="card-img-wrapper">' +
+                    '<div class="card-badge">★ ' + (room.rating || '5.0') + '</div>' +
+                    '<img src="' + img + '" alt="' + (room.title || '').replace(/"/g, '') + '" loading="lazy">' +
+                    '</div>' +
+                    '<div class="card-title" style="padding:10px 4px 0;display:flex;justify-content:space-between;gap:8px">' +
+                    '<span>' + (room.title || '') + '</span></div>' +
+                    '<div class="card-subtitle" style="padding:2px 4px;color:#717171;font-size:13px">' + (room.subtitle || '') + '</div>' +
+                    '<div class="card-price" style="padding:6px 4px 4px"><strong>' + (room.price || 0) + ' сом</strong> <span style="font-weight:400;color:#717171">/ ночь</span></div>';
+                grid.appendChild(card);
+            }
+            if (count === 0) {
+                grid.innerHTML = '<div class="catalog-empty"><strong>Объекты не найдены</strong>' +
+                    (Object.keys(roomsData||{}).length === 0
+                        ? 'Каталог пуст или API /api/rooms недоступен. Проверьте бэкенд.'
+                        : 'Нет объектов в этой категории. Выберите «Все объекты».') +
+                    '<br><button type="button" class="map-btn" style="margin-top:16px" onclick="filterCategory(\'all\', document.querySelector(\'.category-item\'))">Показать все</button></div>';
+            }
+        }
+
+        
+        async function loadPublicNews() {
+            try {
+                const res = await fetch('/api/content?category=news', { cache: 'no-store' });
+                if (!res.ok) return;
+                let list = await res.json();
+                if (!Array.isArray(list)) list = [];
+                list = list.filter(function(n) {
+                    return (n.isPublished || n.IsPublished) && ((n.category||n.Category||'') !== 'reviews' || true);
+                }).filter(function(n) {
+                    var c = (n.category || n.Category || '').toLowerCase();
+                    return c === 'news' || c === 'новости' || c === 'blog' || c === '';
+                });
+                const section = document.getElementById('news-section');
+                let grid = document.getElementById('news-grid');
+                if (!grid && section) {
+                    grid = document.createElement('div');
+                    grid.id = 'news-grid';
+                    grid.className = 'news-grid';
+                    section.appendChild(grid);
+                }
+                if (!section || !grid) return;
+                if (!list.length) { section.style.display = 'none'; return; }
+                section.style.display = 'block';
+                grid.innerHTML = list.slice(0, 6).map(function(n) {
+                    var title = n.title || n.Title || '';
+                    var excerpt = n.excerpt || n.Excerpt || (n.body || n.Body || '').replace(/<[^>]+>/g,'').slice(0, 120);
+                    var cover = n.coverUrl || n.CoverUrl || n.imageUrl || '';
+                    var date = (n.publishedAt || n.PublishedAt || n.createdAt || n.CreatedAt || '').toString().slice(0,10);
+                    var coverStyle = cover ? 'background-image:url(' + cover + ')' : '';
+                    return '<article class="news-card"><div class="cover" style="' + coverStyle + '"></div><div class="body"><h3>' + title + '</h3><div class="excerpt">' + excerpt + '</div><div class="meta">' + date + '</div></div></article>';
+                }).join('');
+            } catch (e) { console.warn('news', e); }
+        }
+        // call after rooms
+        setTimeout(loadPublicNews, 400);
+
+        (function applyPublicTheme(){
+            try {
+                var t = localStorage.getItem('yshkin_theme') || localStorage.getItem('theme');
+                if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+            } catch(e) {}
+        })();
+        loadRoomsFromApi();
+        (async function loadSiteVersion(){
+            try {
+                const r = await fetch('/api/version', {cache:'no-store'});
+                if (!r.ok) return;
+                const d = await r.json();
+                const v = d.version || d.Version || '2.36';
+                const el = document.getElementById('site-version');
+                if (el) el.textContent = 'v' + String(v).replace(/^v/,'');
+            } catch(e) {}
+        })();
+        setTimeout(loadPublicNews, 500);
+
+        async function openMapWidget() {
+            let lat = 42.65, lng = 77.08, addr = 'Чолпон-Ата · Ышкын глемпинг', provider = 'yandex';
+            try {
+                const r = await fetch('/api/settings/branding');
+                if (r.ok) {
+                    const d = await r.json();
+                    const loc = d.location || {};
+                    if (loc.lat) lat = Number(loc.lat);
+                    if (loc.lng) lng = Number(loc.lng);
+                    if (loc.address) addr = loc.address;
+                    if (loc.mapProvider) provider = loc.mapProvider;
+                }
+            } catch (e) {}
+            const yandex = 'https://yandex.ru/maps/?pt=' + lng + ',' + lat + '&z=14&l=map';
+            const google = 'https://www.google.com/maps?q=' + lat + ',' + lng;
+            const url = provider === 'google' ? google : yandex;
+            const embed = provider === 'google'
+                ? 'https://maps.google.com/maps?q=' + lat + ',' + lng + '&z=14&output=embed'
+                : 'https://yandex.ru/map-widget/v1/?pt=' + lng + ',' + lat + '&z=14&l=map';
+            const modal = document.getElementById('map-modal');
+            const addrEl = document.getElementById('map-address');
+            const iframe = document.getElementById('map-iframe');
+            const ext = document.getElementById('map-open-ext');
+            if (addrEl) addrEl.textContent = addr + ' (' + lat.toFixed(4) + ', ' + lng.toFixed(4) + ')';
+            if (iframe) iframe.src = embed;
+            if (ext) ext.href = url;
+            if (modal) modal.style.display = 'flex';
+            else window.open(url, '_blank', 'noopener');
+        }
+        function openVerifyModal(prefill) {
+            var m = document.getElementById('verify-modal');
+            if (!m) { location.href = '/verify'; return; }
+            m.style.display = 'flex';
+            var inp = document.getElementById('verify-token-input');
+            if (inp) {
+                if (prefill) inp.value = prefill;
+                setTimeout(function(){ inp.focus(); }, 50);
+            }
+            var r = document.getElementById('verify-result');
+            if (r) { r.style.display = 'none'; r.innerHTML = ''; }
+        }
+        function closeVerifyModal() {
+            var m = document.getElementById('verify-modal');
+            if (m) m.style.display = 'none';
+        }
+        async function submitVerifyModal() {
+            var token = (document.getElementById('verify-token-input')?.value || '').trim();
+            var box = document.getElementById('verify-result');
+            if (!token) { if (box) { box.style.display='block'; box.textContent='Введите код'; } return; }
+            try {
+                var res = await fetch('/api/verify?token=' + encodeURIComponent(token));
+                if (!res.ok) res = await fetch('/api/verify/' + encodeURIComponent(token));
+                var d = await res.json().catch(function(){return {};});
+                if (!box) return;
+                box.style.display = 'block';
+                if (!res.ok) {
+                    box.innerHTML = '<span style="color:#c00">' + (d.message || d.error || 'Не найдено') + '</span>';
+                    return;
+                }
+                box.innerHTML = '<strong>Бронь #' + (d.id||d.Id||'') + '</strong><br>' +
+                    (d.guestName||d.GuestName||'') + '<br>' +
+                    (d.checkIn||d.CheckIn||'') + ' → ' + (d.checkOut||d.CheckOut||'') + '<br>' +
+                    'Статус: ' + (d.status||d.Status||'') + ' · Оплата: ' + (d.paymentStatus||d.PaymentStatus||'');
+            } catch (e) {
+                if (box) { box.style.display='block'; box.textContent = 'Ошибка сети'; }
+            }
+        }
+        // deep link ?token= opens modal
+        (function(){
+            try {
+                var q = new URLSearchParams(location.search);
+                var t = q.get('token');
+                if (t) setTimeout(function(){ openVerifyModal(t); }, 300);
+            } catch(e) {}
+        })();
+        function openSearchOverlay() {
+            var ov = document.getElementById('search-overlay');
+            if (!ov) return;
+            ov.style.display = 'flex';
+            switchView('catalog');
+        }
+        function closeSearchOverlay() {
+            var ov = document.getElementById('search-overlay');
+            if (ov) ov.style.display = 'none';
+        }
+        function applySearchOverlay() {
+            var cat = (document.getElementById('search-category') || {}).value || 'all';
+            var ci = (document.getElementById('search-checkin') || {}).value;
+            var co = (document.getElementById('search-checkout') || {}).value;
+            var g = (document.getElementById('search-guests') || {}).value;
+            window.__searchDates = { checkIn: ci, checkOut: co, guests: g };
+            // update pill labels
+            var pill = document.querySelector('.search-bar-mock');
+            if (pill) {
+                var labels = { all: 'Любое направление', yurt: 'Юрты', module: 'Модули', mountain: 'Горы', bath: 'Чан/Баня' };
+                var spans = pill.querySelectorAll('span span');
+                if (spans[0]) spans[0].textContent = labels[cat] || 'Любое направление';
+                if (spans[1] && ci && co) spans[1].textContent = ci.slice(5) + ' → ' + co.slice(5);
+                if (spans[2] && g) spans[2].textContent = g + ' гост.';
+            }
+            var catEl = document.querySelector('.category-item[onclick*="' + cat + '"]') || document.querySelector('.category-item');
+            filterCategory(cat, catEl);
+            closeSearchOverlay();
+            var grid = document.getElementById('rooms-grid');
+            if (grid) grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        function onSearchPill(part) {
+            openSearchOverlay();
+            if (part === 'dates') {
+                setTimeout(function(){ var el = document.getElementById('search-checkin'); if (el) el.focus(); }, 100);
+            } else if (part === 'guests') {
+                setTimeout(function(){ var el = document.getElementById('search-guests'); if (el) el.focus(); }, 100);
+            }
+        }
+        function filterCategory(category, el) {
+            document.querySelectorAll('.category-item').forEach(item => item.classList.remove('active'));
+            if (el) el.classList.add('active');
+            window.__catalogFilter = category || 'all';
+            renderCatalog(window.__catalogFilter);
+            // scroll catalog into view
+            var grid = document.getElementById('rooms-grid') || document.getElementById('catalog-view');
+            if (grid) grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function switchView(viewName) {
+            document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+            if (viewName === 'catalog') {
+                document.getElementById('catalog-view').classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else if (viewName === 'detail') {
+                document.getElementById('detail-view').classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function openRoomDetail(id) {
+            currentRoomId = id;
+            const room = roomsData[id];
+            currentGalleryImages = room.images;
+            
+            document.getElementById('det-title').textContent = room.title;
+            const hostEl = document.getElementById('det-host-line');
+            if (hostEl) hostEl.textContent = (siteBranding.siteHeadline || 'Жилье целиком') + (siteBranding.hostName ? ', принимает ' + siteBranding.hostName : '');
+            document.getElementById('det-subtitle').textContent = `${room.subtitle} · ★ ${room.rating}`;
+            document.getElementById('det-desc').textContent = room.desc;
+            document.getElementById('det-price').textContent = room.price;
+            loadReviews();
+            maxGuestsForRoom = Number(room.maxGuests || room.MaxGuests || room.capacity || 2) || 2;
+            petsAllowed = !!(room.petsAllowed || room.PetsAllowed);
+            guestsState = { adults: 1, children: 0, infants: 0, pets: 0 };
+            ['adults','children','infants','pets'].forEach(function(t) {
+                const el = document.getElementById('guest-' + t);
+                if (el) el.textContent = guestsState[t];
+            });
+            const gsum = document.getElementById('guest-summary');
+            if (gsum) gsum.textContent = '1 гость';
+            updateGuestLimitNote();
+            document.getElementById('det-rating').textContent = `★ ${room.rating}`;
+
+            const galleryContainer = document.getElementById('det-gallery');
+            galleryContainer.innerHTML = '';
+            room.images.forEach((imgUrl, index) => {
+                const div = document.createElement('div');
+                div.className = 'gallery-img-container';
+                div.onclick = () => openLightbox(index);
+                div.innerHTML = `<img src="${imgUrl}" alt="Фото ${index + 1}">`;
+                galleryContainer.appendChild(div);
+            });
+
+            setDefaultDates();
+            renderRoomAmenities(room);
+            renderRoomExtras(room);
+            calculateTotal();
+            switchView('detail');
+        }
+
+        function setDefaultDates() {
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            
+            checkInDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+            checkOutDate = new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate());
+            updateDateDisplay();
+        }
+
+        function updateDateDisplay() {
+            const fmt = (d) => {
+                if (!d) return 'Выберите дату';
+                return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
+            };
+            document.getElementById('display-checkin').textContent = fmt(checkInDate);
+            document.getElementById('display-checkout').textContent = fmt(checkOutDate);
+        }
+
+        function openAdminModal() {
+            const existingToken = localStorage.getItem('yshkin_jwt');
+            if (existingToken) {
+                window.location.href = '/admin';
+                return;
+            }
+            document.getElementById('admin-login-modal').style.display = 'flex';
+            document.body.classList.add('modal-open');
+            document.getElementById('admin-login-error').style.display = 'none';
+            document.getElementById('admin-login-form').reset();
+        }
+
+        function closeAdminModal() {
+            document.getElementById('admin-login-modal').style.display = 'none';
+            document.body.classList.remove('modal-open');
+        }
+
+        async function handleAdminLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('admin-username').value.trim();
+            const password = document.getElementById('admin-password').value.trim();
+            const errorBox = document.getElementById('admin-login-error');
+            errorBox.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || data.error || 'Неверный логин или пароль');
+                }
+
+                if (data.token) {
+                    localStorage.setItem('yshkin_jwt', data.token);
+                }
+
+                window.location.href = '/admin';
+            } catch (err) {
+                if (username === 'admin' && password === 'admin') {
+                    /* demo disabled */
+                    window.location.href = '/admin';
+                    return;
+                }
+                errorBox.textContent = `⚠️ ${err.message || 'Ошибка авторизации. Проверьте данные.'}`;
+                errorBox.style.display = 'block';
+            }
+        }
+
+        let calendarViewDate = new Date();
+
+        function openAirbnbCalendar() {
+            document.getElementById('airbnb-calendar-modal').style.display = 'flex';
+            document.body.classList.add('modal-open');
+            renderAirbnbMonths();
+        }
+
+        function closeAirbnbCalendar() {
+            document.getElementById('airbnb-calendar-modal').style.display = 'none';
+            document.body.classList.remove('modal-open');
+            calculateTotal();
+        }
+
+        function changeMonth(delta) {
+            calendarViewDate.setMonth(calendarViewDate.getMonth() + delta);
+            renderAirbnbMonths();
+        }
+
+        function clearDates() {
+            checkInDate = null;
+            checkOutDate = null;
+            updateDateDisplay();
+            renderAirbnbMonths();
+            calculateTotal();
+        }
+
+        function renderAirbnbMonths() {
+            const container = document.getElementById('calendars-container');
+            container.innerHTML = '';
+
+            const count = window.innerWidth < 640 ? 1 : 2;
+            for (let i = 0; i < count; i++) {
+                let targetDate = new Date(calendarViewDate.getFullYear(), calendarViewDate.getMonth() + i, 1);
+                container.appendChild(createMonthElement(targetDate));
+            }
+        }
+
+        function createMonthElement(dateObj) {
+            const year = dateObj.getFullYear();
+            const month = dateObj.getMonth();
+            const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+
+            const monthDiv = document.createElement('div');
+            monthDiv.className = 'single-month';
+
+            let titleHtml = `<div class="month-title">${monthNames[month]} ${year}</div>`;
+            let weekdaysHtml = `<div class="weekdays-grid"><div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div>Вс</div></div>`;
+            let daysHtml = `<div class="days-grid">`;
+            
+            let firstDayIndex = new Date(year, month, 1).getDay();
+            firstDayIndex = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
+            
+            let totalDays = new Date(year, month + 1, 0).getDate();
+            let today = new Date();
+            today.setHours(0,0,0,0);
+
+            for (let i = 0; i < firstDayIndex; i++) {
+                daysHtml += `<div class="day-cell empty"></div>`;
+            }
+
+            for (let d = 1; d <= totalDays; d++) {
+                let currDate = new Date(year, month, d);
+                let isPast = currDate < today;
+                
+                let classes = ['day-cell'];
+                if (isPast) classes.push('disabled');
+
+                let isStart = checkInDate && currDate.getTime() === checkInDate.getTime();
+                let isEnd = checkOutDate && currDate.getTime() === checkOutDate.getTime();
+                let isInRange = checkInDate && checkOutDate && currDate > checkInDate && currDate < checkOutDate;
+
+                if (isStart) classes.push('selected-start');
+                if (isEnd) classes.push('selected-end');
+                if (isInRange) classes.push('in-range');
+
+                daysHtml += `<div class="${classes.join(' ')}" onclick="handleDateClick(${year}, ${month}, ${d}, ${isPast})">${d}</div>`;
+            }
+
+            daysHtml += `</div>`;
+            monthDiv.innerHTML = titleHtml + weekdaysHtml + daysHtml;
+            return monthDiv;
+        }
+
+        function handleDateClick(year, month, day, isPast) {
+            if (isPast) return;
+            let clickedDate = new Date(year, month, day);
+
+            if (!checkInDate || (checkInDate && checkOutDate)) {
+                checkInDate = clickedDate;
+                checkOutDate = null;
+            } else if (checkInDate && !checkOutDate) {
+                if (clickedDate <= checkInDate) {
+                    checkInDate = clickedDate;
+                } else {
+                    checkOutDate = clickedDate;
+                }
+            }
+            updateDateDisplay();
+            renderAirbnbMonths();
+            calculateTotal();
+        }
+
+        function openLightbox(index) {
+            currentLightboxIndex = index;
+            updateLightbox();
+            document.getElementById('lightbox-modal').style.display = 'flex';
+            document.body.classList.add('modal-open');
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox-modal').style.display = 'none';
+            document.body.classList.remove('modal-open');
+        }
+
+        function navigateLightbox(direction) {
+            currentLightboxIndex = (currentLightboxIndex + direction + currentGalleryImages.length) % currentGalleryImages.length;
+            updateLightbox();
+        }
+
+        function updateLightbox() {
+            document.getElementById('lightbox-img').src = currentGalleryImages[currentLightboxIndex];
+            document.getElementById('lightbox-counter').textContent = `${currentLightboxIndex + 1} из ${currentGalleryImages.length}`;
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (document.getElementById('lightbox-modal').style.display === 'flex') {
+                if (e.key === 'ArrowLeft') navigateLightbox(-1);
+                if (e.key === 'ArrowRight') navigateLightbox(1);
+                if (e.key === 'Escape') closeLightbox();
+            }
+            if (e.key === 'Escape' && document.getElementById('airbnb-calendar-modal').style.display === 'flex') {
+                closeAirbnbCalendar();
+            }
+            if (e.key === 'Escape' && document.getElementById('admin-login-modal').style.display === 'flex') {
+                closeAdminModal();
+            }
+        });
+
+        function onCountryCodeChange() {
+            const select = document.getElementById('phone-country-code');
+            const phoneInput = document.getElementById('guest-phone');
+            const selectedOption = select.options[select.selectedIndex];
+            
+            phoneInput.placeholder = selectedOption.getAttribute('data-placeholder') || 'Номер телефона';
+            phoneInput.value = '';
+        }
+
+        function formatPhoneInput(input) {
+            const select = document.getElementById('phone-country-code');
+            const selectedOption = select.options[select.selectedIndex];
+            const mask = selectedOption.getAttribute('data-mask');
+            
+            if (!mask || select.value === 'other') return;
+
+            let numbers = input.value.replace(/\D/g, '');
+            let result = '';
+            let numIndex = 0;
+
+            for (let i = 0; i < mask.length; i++) {
+                if (numIndex >= numbers.length) break;
+                if (mask[i] === '#') {
+                    result += numbers[numIndex];
+                    numIndex++;
+                } else {
+                    result += mask[i];
+                }
+            }
+            input.value = result;
+        }
+
+        function getSelectedExtras() {
+            const extras = [];
+            document.querySelectorAll('.extra-service:checked').forEach(cb => {
+                const name = cb.getAttribute('data-name');
+                if (name) extras.push(name.trim());
+            });
+            return extras;
+        }
+
+        
+        let cachedPublicRates = [];
+
+        async function loadPublicRates() {
+            try {
+                const res = await fetch('/api/rates');
+                if (res.ok) cachedPublicRates = await res.json();
+            } catch (e) { cachedPublicRates = []; }
+        }
+        loadPublicRates();
+
+        function resolvePublicNightPrice(room, checkInDateObj) {
+            const base = Number(room && room.price) || 0;
+            if (!cachedPublicRates.length || !checkInDateObj) return { price: base, label: null };
+            const y = checkInDateObj.getFullYear();
+            const m = String(checkInDateObj.getMonth() + 1).padStart(2, '0');
+            const d = String(checkInDateObj.getDate()).padStart(2, '0');
+            const ds = y + '-' + m + '-' + d;
+            const roomId = Number(currentRoomId);
+            let best = null;
+            for (const r of cachedPublicRates) {
+                if (r.isActive === false || r.IsActive === false) continue;
+                const rid = r.roomId ?? r.RoomId;
+                if (rid != null && Number(rid) !== roomId) continue;
+                const from = r.dateFrom || r.DateFrom;
+                const to = r.dateTo || r.DateTo;
+                if (from && ds < String(from).slice(0, 10)) continue;
+                if (to && ds > String(to).slice(0, 10)) continue;
+                const fixed = r.fixedPrice ?? r.FixedPrice;
+                const mult = r.multiplier ?? r.Multiplier ?? 1;
+                const price = fixed != null ? Number(fixed) : Math.round(base * Number(mult));
+                const prio = r.priority ?? r.Priority ?? 0;
+                if (!best || prio >= best.prio) best = { price: price, label: r.name || r.Name || 'тариф', prio: prio };
+            }
+            return best || { price: base, label: null };
+        }
+
+
+        
+        let siteBranding = { hostName: 'Ышкын', siteHeadline: 'Жилье целиком' };
+
+        let siteCurrency = 'сом';
+        let siteLocation = { address: '', lat: 42.65, lng: 77.08, mapProvider: 'yandex', zoom: 14 };
+
+        function applyFavicon(url) {
+            if (!url) return;
+            let link = document.getElementById('site-favicon');
+            if (!link) {
+                link = document.createElement('link');
+                link.id = 'site-favicon';
+                link.rel = 'icon';
+                document.head.appendChild(link);
+            }
+            link.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'v=' + Date.now();
+        }
+
+        function mapEmbedUrl(loc) {
+            const lat = loc.lat || 42.65;
+            const lng = loc.lng || 77.08;
+            const z = loc.zoom || 14;
+            if ((loc.mapProvider || 'yandex') === 'google') {
+                return 'https://maps.google.com/maps?q=' + lat + ',' + lng + '&z=' + z + '&output=embed';
+            }
+            return 'https://yandex.ru/map-widget/v1/?ll=' + lng + '%2C' + lat + '&z=' + z + '&pt=' + lng + ',' + lat + ',pm2rdm';
+        }
+
+
+
+        async function loadBranding() {
+            try {
+                const res = await fetch('/api/settings/branding');
+                if (!res.ok) return;
+                const data = await res.json();
+                const brand = data.brand || {};
+                const seo = data.seo || {};
+                const home = data.homepage || {};
+                const contacts = data.contacts || {};
+                siteBranding.hostName = brand.fullName || brand.name || siteBranding.hostName;
+                siteBranding.siteHeadline = brand.siteHeadline || brand.headline || siteBranding.siteHeadline;
+                siteBranding.name = brand.name || siteBranding.name || 'Ышкын';
+                siteCurrency = brand.currency || brand.currencySymbol || siteCurrency;
+                if (brand.faviconUrl) applyFavicon(brand.faviconUrl);
+                if (brand.primaryColor) {
+                    document.documentElement.style.setProperty('--pink', brand.primaryColor);
+                    document.documentElement.style.setProperty('--primary', brand.primaryColor);
+                }
+                // SEO
+                if (seo.title) {
+                    document.title = seo.title;
+                    var dt = document.getElementById('doc-title');
+                    if (dt) dt.textContent = seo.title;
+                }
+                var md = document.getElementById('meta-description');
+                if (md && seo.description) md.setAttribute('content', seo.description);
+                var mk = document.getElementById('meta-keywords');
+                if (mk && seo.keywords) mk.setAttribute('content', seo.keywords);
+                // Logo text
+                var logoEl = document.querySelector('.logo span, .logo-text, a.logo');
+                if (logoEl && brand.name) {
+                    // update text nodes carefully
+                }
+                var logoTexts = document.querySelectorAll('[data-brand-name]');
+                logoTexts.forEach(function(el) { el.textContent = brand.name; });
+                // Homepage copy
+                function setText(sel, val) {
+                    if (!val) return;
+                    var el = document.querySelector(sel);
+                    if (el) el.textContent = val;
+                }
+                setText('#news-section h2', home.newsTitle);
+                setText('.reviews-section h3', home.reviewsTitle);
+                setText('.map-card h3', home.mapTitle);
+                setText('.fees-pill', home.feesNote ? ('✓ ' + home.feesNote.replace(/^✓\s*/, '')) : null);
+                setText('.pay-note', home.payNote);
+                var cta = document.getElementById('submit-btn');
+                if (cta && home.bookCta) cta.textContent = home.bookCta;
+                // Lang switcher data
+                window.__i18nLocales = (data.i18n && data.i18n.locales) || ['ru'];
+                window.__defaultLocale = (data.i18n && data.i18n.defaultLocale) || 'ru';
+                if (data.location) siteLocation = Object.assign(siteLocation, data.location);
+                renderMapBlock();
+            } catch (e) {}
+        }
+
+        async function loadLocale(lang) {
+            try {
+                const res = await fetch('/locales/' + (lang || 'ru') + '.json');
+                if (!res.ok) return;
+                const dict = await res.json();
+                document.querySelectorAll('[data-i18n]').forEach(function(el) {
+                    var key = el.getAttribute('data-i18n');
+                    if (dict[key]) el.textContent = dict[key];
+                });
+                localStorage.setItem('yshkin_lang', lang);
+            } catch (e) {}
+        }
+
+
+        function renderMapBlock() {
+            const wrap = document.getElementById('map-card');
+            if (!wrap || !siteLocation) return;
+            const addr = siteLocation.address || '';
+            const addrEl = document.getElementById('map-address');
+            if (addrEl) addrEl.textContent = addr;
+            const frame = document.getElementById('map-frame');
+            if (frame) frame.src = mapEmbedUrl(siteLocation);
+            const yx = document.getElementById('map-link-yandex');
+            const gg = document.getElementById('map-link-google');
+            const lat = siteLocation.lat, lng = siteLocation.lng;
+            if (yx) yx.href = 'https://yandex.ru/maps/?pt=' + lng + ',' + lat + '&z=15&l=map';
+            if (gg) gg.href = 'https://www.google.com/maps?q=' + lat + ',' + lng;
+        }
+
+        function fillReviewRoomSelect() {
+            const sel = document.getElementById('review-room');
+            if (!sel || typeof roomsData === 'undefined') return;
+            const cur = currentRoomId;
+            let html = '<option value="">Общий отзыв (все объекты)</option>';
+            Object.keys(roomsData).forEach(function(k) {
+                const r = roomsData[k];
+                const id = r.id || r.Id || k;
+                const t = r.title || r.Title || ('Объект ' + id);
+                html += '<option value="' + id + '"' + (String(id) === String(cur) ? ' selected' : '') + '>' + t + '</option>';
+            });
+            sel.innerHTML = html;
+        }
+        async function loadReviews() {
+            const box = document.getElementById('reviews-list');
+            if (!box) return;
+            fillReviewRoomSelect();
+            const roomQ = currentRoomId ? ('&roomId=' + currentRoomId) : '';
+            try {
+                const res = await fetch('/api/content?category=reviews' + (typeof roomQ !== 'undefined' ? roomQ : ''));
+                if (!res.ok) throw new Error();
+                let list = await res.json();
+                list = (list || []).filter(function(x) { return x.isPublished !== false && x.IsPublished !== false; });
+                if (!list.length) {
+                    box.innerHTML = '<p style="color:#717171;font-size:13px">Отзывов пока нет — станьте первым!</p>';
+                    return;
+                }
+                box.innerHTML = list.map(function(r) {
+                    var title = r.title || r.Title || 'Гость';
+                    var body = r.body || r.Body || '';
+                    var rating = r.rating || r.Rating || 5;
+                    var roomLabel = r.roomTitle || r.RoomTitle || '';
+                    var stars = '★★★★★'.slice(0, rating) + '☆☆☆☆☆'.slice(0, 5 - rating);
+                    return '<div class="review-card"><div class="review-header"><span>' + title + (roomLabel ? ' · <small style="color:#64748b">' + roomLabel + '</small>' : '') + '</span><span style="color:#f59e0b">' + stars + '</span></div><p class="review-text">' + body + '</p></div>';
+                }).join('');
+            } catch (e) {
+                box.innerHTML = '<p style="color:#717171;font-size:13px">Не удалось загрузить отзывы</p>';
+            }
+        }
+
+
+        async function loadNews() {
+            const section = document.getElementById('news-section');
+            const grid = document.getElementById('news-grid');
+            if (!grid) return;
+            try {
+                const res = await fetch('/api/content?category=news');
+                const res2 = await fetch('/api/content?category=blog');
+                let list = [];
+                if (res.ok) list = list.concat(await res.json());
+                if (res2.ok) list = list.concat(await res2.json());
+                list = (list || []).filter(function(x) { return x.isPublished !== false && x.IsPublished !== false; });
+                list.sort(function(a, b) {
+                    var da = (a.publishedAt || a.PublishedAt || a.createdAt || a.CreatedAt || '');
+                    var db = (b.publishedAt || b.PublishedAt || b.createdAt || b.CreatedAt || '');
+                    return db > da ? 1 : -1;
+                });
+                list = list.slice(0, 6);
+                if (!list.length) { if (section) section.style.display = 'none'; return; }
+                if (section) section.style.display = 'block';
+                grid.innerHTML = list.map(function(n) {
+                    var title = n.title || n.Title || '';
+                    var excerpt = n.excerpt || n.Excerpt || (n.body || n.Body || '').replace(/<[^>]+>/g, '').slice(0, 140);
+                    var date = (n.publishedAt || n.PublishedAt || n.createdAt || n.CreatedAt || '').toString().slice(0, 10);
+                    var img = n.imageUrl || n.ImageUrl || '';
+                    var video = n.videoUrl || n.VideoUrl || '';
+                    var tags = (n.tags || n.Tags || '').split(',').filter(Boolean);
+                    var media = img ? '<img src="' + img + '" alt="">' : (video ? '<video src="' + video + '" controls></video>' : '<div style="height:120px;background:linear-gradient(135deg,#e0f2fe,#fce7f3)"></div>');
+                    var tagHtml = tags.map(function(t) { return '<span class="tag">' + t.trim() + '</span>'; }).join('');
+                    return '<article class="news-card">' + media + '<div class="body">' + tagHtml + '<h3>' + title + '</h3><p>' + excerpt + '</p><div class="meta">' + date + '</div></div></article>';
+                }).join('');
+            } catch (e) {}
+        }
+
+
+        loadBranding();
+        loadNews();
+
+
+        
+        let guestsState = { adults: 1, children: 0, infants: 0, pets: 0 };
+        let maxGuestsForRoom = 2; // без младенцев; обновляется при открытии объекта
+        let petsAllowed = false;
+
+        function toggleGuestPanel(force) {
+            const p = document.getElementById('guest-stepper-panel');
+            if (!p) return;
+            if (force === false) p.classList.remove('open');
+            else if (force === true) p.classList.add('open');
+            else p.classList.toggle('open');
+            updateGuestLimitNote();
+        }
+
+        function updateGuestLimitNote() {
+            const note = document.getElementById('guest-limit-note');
+            if (!note) return;
+            const max = maxGuestsForRoom || 2;
+            const petsText = petsAllowed
+                ? 'Проживание с питомцами возможно по согласованию.'
+                : 'Проживание с питомцами не разрешается.';
+            note.textContent = 'Жилье рассчитано максимум на ' + max + ' гостей, не считая младенцев. ' + petsText;
+        }
+
+        function changeGuests(type, delta) {
+            const cur = guestsState[type] || 0;
+            let next = cur + delta;
+            if (type === 'adults') next = Math.max(1, next);
+            else next = Math.max(0, next);
+
+            if (type === 'pets') {
+                if (!petsAllowed && next > 0) {
+                    // можно выбрать, но в заметке ясно что не разрешено — или блокируем
+                    next = Math.max(0, next);
+                }
+                if (next > 3) next = 3;
+            } else if (type !== 'infants') {
+                const adults = type === 'adults' ? next : guestsState.adults;
+                const children = type === 'children' ? next : guestsState.children;
+                if (adults + children > maxGuestsForRoom && delta > 0) return;
+            }
+
+            guestsState[type] = next;
+            const el = document.getElementById('guest-' + type);
+            if (el) el.textContent = next;
+
+            const sum = guestsState.adults + guestsState.children;
+            let label = sum === 1 ? '1 гость' : (sum < 5 ? sum + ' гостя' : sum + ' гостей');
+            if (guestsState.infants) label += ', ' + guestsState.infants + ' мл.';
+            if (guestsState.pets) label += ', ' + guestsState.pets + ' пит.';
+            const gsum = document.getElementById('guest-summary');
+            if (gsum) gsum.textContent = label;
+            updateGuestLimitNote();
+        }
+
+
+        
+        function buildHousingTypes() {
+            const row = document.getElementById('housing-type-row');
+            if (!row || typeof roomsData === 'undefined') return;
+            const cats = new Set();
+            Object.values(roomsData).forEach(function(r) {
+                const c = (r.categories || r.Categories || '').split(',');
+                c.forEach(function(x) { x = x.trim(); if (x) cats.add(x); });
+            });
+            const labels = { module: 'Модуль', yurt: 'Юрта', mountain: 'Горы', bath: 'Чан/Баня' };
+            let html = '<button type="button" class="active" data-cat="" onclick="filterHousingType(this,\'\')">Все типы</button>';
+            cats.forEach(function(c) {
+                html += '<button type="button" data-cat="' + c + '" onclick="filterHousingType(this,\'' + c + '\')">' + (labels[c] || c) + '</button>';
+            });
+            row.innerHTML = html;
+        }
+
+        function filterHousingType(btn, cat) {
+            document.querySelectorAll('#housing-type-row button').forEach(function(b) { b.classList.remove('active'); });
+            if (btn) btn.classList.add('active');
+            // optional: highlight matching room on catalog - for detail just visual
+        }
+
+        function validateBookingForm() {
+            let ok = true;
+            function mark(el, bad, msgId) {
+                if (!el) return;
+                el.classList.toggle('field-error', !!bad);
+                const err = msgId ? document.getElementById(msgId) : null;
+                if (err) err.classList.toggle('show', !!bad);
+                if (bad) ok = false;
+            }
+            const name = document.getElementById('guest-name');
+            const nameVal = (name && name.value || '').trim();
+            // буквы, пробелы, дефис, минимум 2 символа (кириллица/латиница)
+            const nameBad = nameVal.length < 2 || !/^[А-Яа-яЁёA-Za-z\s\-']{2,80}$/.test(nameVal);
+            mark(name, nameBad, 'err-guest-name');
+
+            let phoneEl = document.getElementById('guest-phone-number')
+                || document.getElementById('phone-number')
+                || document.querySelector('.phone-input-wrapper input[type="tel"]')
+                || document.querySelector('.phone-input-wrapper input:not([type="hidden"]):not(select)');
+            const phoneDigits = (phoneEl && phoneEl.value || '').replace(/\D/g, '');
+            mark(phoneEl, phoneDigits.length < 8, 'err-guest-phone');
+
+            if (!checkInDate || !checkOutDate) {
+                ok = false;
+                alert('Выберите даты заезда и выезда');
+            }
+            return ok;
+        }
+
+
+        
+        let reviewRating = 5;
+        function initReviewStars() {
+            const box = document.getElementById('review-stars');
+            if (!box || box.dataset.bound) return;
+            box.dataset.bound = '1';
+            box.querySelectorAll('span').forEach(function(s) {
+                s.addEventListener('click', function() {
+                    reviewRating = parseInt(s.getAttribute('data-v'), 10) || 5;
+                    box.dataset.rating = reviewRating;
+                    box.querySelectorAll('span').forEach(function(x) {
+                        const v = parseInt(x.getAttribute('data-v'), 10);
+                        x.style.color = v <= reviewRating ? '#f59e0b' : '#d1d5db';
+                    });
+                });
+            });
+            box.querySelectorAll('span').forEach(function(x) { x.style.color = '#f59e0b'; });
+        }
+        document.addEventListener('DOMContentLoaded', initReviewStars);
+        document.addEventListener('DOMContentLoaded', function() {
+            ['guest-name', 'guest-phone-number', 'phone-number'].forEach(function(id) {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.addEventListener('input', function() {
+                    el.classList.remove('field-error');
+                    const err = document.getElementById(id === 'guest-name' ? 'err-guest-name' : 'err-guest-phone');
+                    if (err) err.classList.remove('show');
+                });
+            });
+        });
+
+        async function submitPublicReview() {
+            const author = (document.getElementById('review-author')?.value || '').trim();
+            const body = (document.getElementById('review-body')?.value || '').trim();
+            const msg = document.getElementById('review-form-msg');
+            if (author.length < 2 || body.length < 10) {
+                if (msg) msg.textContent = 'Укажите имя и текст отзыва (мин. 10 символов)';
+                return;
+            }
+            try {
+                const res = await fetch('/api/content/submit-review', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                    author: author,
+                    body: body,
+                    rating: reviewRating,
+                    roomId: parseInt(document.getElementById('review-room')?.value || '0', 10) || null
+                })
+                });
+                const data = await res.json().catch(function() { return {}; });
+                if (!res.ok) {
+                    if (msg) msg.textContent = data.message || 'Ошибка отправки';
+                    return;
+                }
+                if (msg) msg.textContent = 'Спасибо! Отзыв появится после проверки.';
+                document.getElementById('review-author').value = '';
+                document.getElementById('review-body').value = '';
+            } catch (e) {
+                if (msg) msg.textContent = 'Нет связи с сервером';
+            }
+        }
+
+
+        function calculateTotal() {
+            let nights = 1;
+            if (checkInDate && checkOutDate) {
+                const a = new Date(checkInDate.getFullYear(), checkInDate.getMonth(), checkInDate.getDate());
+                const b = new Date(checkOutDate.getFullYear(), checkOutDate.getMonth(), checkOutDate.getDate());
+                const diffTime = b - a;
+                nights = Math.round(diffTime / (1000 * 60 * 60 * 24));
+                if (nights < 1) nights = 1;
+            }
+
+            const room = roomsData[currentRoomId] || roomsData[1] || { price: 0 };
+            const resolved = resolvePublicNightPrice(room, checkInDate);
+            const nightPrice = Number(resolved.price != null ? resolved.price : (room.price || room.Price || 0)) || 0;
+            const baseTotal = nights * nightPrice;
+            const rateHintEl = document.getElementById('public-rate-hint');
+            if (rateHintEl) {
+                if (resolved.label) {
+                    rateHintEl.style.display = 'block';
+                    rateHintEl.textContent = 'Тариф «' + resolved.label + '»: ' + nightPrice + ' сом/ночь';
+                } else {
+                    rateHintEl.style.display = 'none';
+                }
+            }
+            
+            let extrasTotal = 0;
+            document.querySelectorAll('.extra-service, input[name="extra"], #dynamic-extras input[type="checkbox"]').forEach(cb => {
+                if (cb.checked) {
+                    extrasTotal += parseFloat(cb.dataset.price || cb.getAttribute('data-price') || 0) || 0;
+                }
+            });
+
+            const finalTotal = baseTotal + extrasTotal;
+
+            document.getElementById('calc-nights').textContent = `${nights} ноч. × ${nightPrice} сом`;
+            const dp = document.getElementById('det-price');
+            if (dp) dp.textContent = nightPrice;
+            document.getElementById('calc-base-total').textContent = `${baseTotal} сом`;
+            document.getElementById('calc-extras-total').textContent = `${extrasTotal} сом`;
+            document.getElementById('calc-final-total').textContent = `${finalTotal} ${siteCurrency || 'сом'}`;
+
+            const heroAmt = document.getElementById('price-hero-amount');
+            const heroNights = document.getElementById('price-hero-nights');
+            const heroCur = document.getElementById('price-hero-currency');
+            if (heroAmt) heroAmt.textContent = finalTotal.toLocaleString('ru-RU');
+            if (heroCur) heroCur.textContent = siteCurrency || 'сом';
+            if (heroNights) {
+                const nlab = nights === 1 ? 'за 1 ночь' : (nights < 5 ? 'за ' + nights + ' ночи' : 'за ' + nights + ' ночей');
+                heroNights.textContent = nlab;
+            }
+            const curLabel = document.getElementById('det-currency-label');
+            if (curLabel) curLabel.textContent = siteCurrency || 'сом';
+
+
+            return { nights, baseTotal, extrasTotal, finalTotal };
+        }
+
+        document.querySelectorAll('.extra-service').forEach(cb => {
+            cb.addEventListener('change', calculateTotal);
+        });
+
+        document.getElementById('booking-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const alertBox = document.getElementById('alert-box');
+            alertBox.style.display = 'none';
+
+            const name = document.getElementById('guest-name').value.trim();
+            const countryCode = document.getElementById('phone-country-code').value;
+            const rawPhone = document.getElementById('guest-phone').value.trim();
+
+            const nameRegex = /^[А-Яа-яЁёA-Za-z\s\-]{2,}$/;
+            if (!nameRegex.test(name)) {
+                alertBox.className = 'error';
+                alertBox.innerHTML = `⚠️ <strong>Внимание:</strong> Введите корректное имя (не менее 2 символов).`;
+                return;
+            }
+
+            const digitsOnly = rawPhone.replace(/\D/g, '');
+            if (digitsOnly.length < 6) {
+                alertBox.className = 'error';
+                alertBox.innerHTML = `⚠️ <strong>Внимание:</strong> Заполните полный номер телефона.`;
+                return;
+            }
+
+            const fullPhone = countryCode === 'other' ? rawPhone : `${countryCode} ${rawPhone}`;
+
+            if (!checkInDate || !checkOutDate) {
+                alertBox.className = 'error';
+                alertBox.innerHTML = `⚠️ <strong>Внимание:</strong> Пожалуйста, выберите даты заезда и выезда.`;
+                return;
+            }
+
+            const currentRoom = roomsData[currentRoomId] || roomsData[1];
+            const calc = calculateTotal();
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Отправка заявки...';
+
+            try {
+                const bookingData = {
+                    roomId: parseInt(currentRoomId),
+                    roomTitle: currentRoom.title,
+                    guestName: name,
+                    guestPhone: fullPhone,
+                    checkIn: formatDateLocal(checkInDate),
+                    checkOut: formatDateLocal(checkOutDate),
+                    totalPrice: calc.finalTotal,
+                    status: "Ожидает подтверждения",
+                    bookingExtras: getSelectedExtras()
+                };
+
+                const token = localStorage.getItem('yshkin_jwt');
+                const headers = { 'Content-Type': 'application/json' };
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+
+                const response = await fetch('/api/bookings', {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(bookingData)
+                });
+
+                let result = {};
+                try {
+                    result = await response.json();
+                } catch (parseErr) {}
+
+                // Если сервер вернул код ошибки (в т.ч. овербукинг 400 Bad Request)
+                if (!response.ok) {
+                    throw new Error(result.error || result.message || 'Выбранный объект уже забронирован на эти даты.');
+                }
+
+                // Успешный ответ
+                alertBox.className = 'success';
+                const tok = result.verificationToken || result.VerificationToken || '';
+                const verifyLink = tok ? (location.origin + '/verify?token=' + encodeURIComponent(tok)) : '';
+                alertBox.innerHTML = `<strong>Спасибо за бронирование!</strong><br>
+                    Заявка #${result.id || result.Id || ''} принята.<br>
+                    Объект: ${currentRoom.title}<br>
+                    Итого: ${calc.finalTotal} сом.<br>
+                    ${tok ? 'Код проверки: <b>' + tok + '</b><br>' : ''}
+                    ${verifyLink ? '<a href="' + verifyLink + '" target="_blank">Открыть страницу брони</a><br>' : ''}
+                    Телефон: ${fullPhone}<br>
+                    <small>Сохраните код — он также уйдёт в Telegram администратору.</small>`;
+                document.getElementById('booking-form').reset();
+                onCountryCodeChange();
+                setDefaultDates();
+                calculateTotal();
+            } catch (err) {
+                // Ошибка овербукинга выводится КРАСНЫМ цветом
+                alertBox.className = 'error';
+                alertBox.innerHTML = `⚠️ <strong>Ошибка:</strong> ${err.message}`;
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Забронировать';
+            }
+        });
+    </script>
+
+<button type="button" class="public-theme-btn" onclick="togglePublicTheme()" aria-label="Тема">🌙</button>
+<button type="button" id="pwaPublicInstall" onclick="installPublicPwa()">📲 На экран</button>
+<script>
+(function(){
+  try {
+    var t = localStorage.getItem('yshkin-public-theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+  } catch(e){}
+  window.togglePublicTheme = function(){
+    var cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', cur);
+    try { localStorage.setItem('yshkin-public-theme', cur); } catch(e){}
+    var b = document.querySelector('.public-theme-btn');
+    if (b) b.textContent = cur === 'dark' ? '☀️' : '🌙';
+  };
+  var _dp = null;
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault(); _dp = e;
+    var el = document.getElementById('pwaPublicInstall');
+    if (el) el.style.display = 'block';
+  });
+  window.installPublicPwa = async function(){
+    if (!_dp) return;
+    _dp.prompt();
+    try { await _dp.userChoice; } catch(e){}
+    _dp = null;
+    var el = document.getElementById('pwaPublicInstall');
+    if (el) el.style.display = 'none';
+  };
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(function(){});
+})();
+</script>
+</body>
+</html>

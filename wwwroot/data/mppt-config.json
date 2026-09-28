@@ -1,0 +1,141 @@
+{
+  "slaveAddress": 9,
+  "baudRate": 9600,
+  "parity": "N",
+  "dataBits": 8,
+  "stopBits": 1,
+  "portName": "COM3",
+  "scales": {
+    "voltage": 0.1,
+    "current": 0.1,
+    "temperature": 1,
+    "energyWh": 1
+  },
+  "registers": [
+    {
+      "addr": "40001",
+      "offset": "0x0000",
+      "name": "SlaveAddress",
+      "unit": "",
+      "scale": 1,
+      "writable": false
+    },
+    {
+      "addr": "40002",
+      "offset": "0x0001",
+      "name": "DeviceType",
+      "unit": "1=MPPT",
+      "scale": 1,
+      "writable": false
+    },
+    {
+      "addr": "40003",
+      "offset": "0x0002",
+      "name": "DcOutputSwitch",
+      "unit": "0=off 1=on",
+      "scale": 1,
+      "writable": true
+    },
+    {
+      "addr": "40008",
+      "offset": "0x0007",
+      "name": "EqualizeVoltage",
+      "unit": "V",
+      "scale": 0.1,
+      "writable": true
+    },
+    {
+      "addr": "40009",
+      "offset": "0x0008",
+      "name": "FloatVoltage",
+      "unit": "V",
+      "scale": 0.1,
+      "writable": true
+    },
+    {
+      "addr": "40010",
+      "offset": "0x0009",
+      "name": "DischargeLimitV",
+      "unit": "V",
+      "scale": 0.1,
+      "writable": true
+    },
+    {
+      "addr": "40011",
+      "offset": "0x000A",
+      "name": "ChargeCurrentLimit",
+      "unit": "A",
+      "scale": 0.1,
+      "writable": true
+    },
+    {
+      "addr": "40012",
+      "offset": "0x000B",
+      "name": "PvInputVoltage",
+      "unit": "V",
+      "scale": 0.1,
+      "writable": false
+    },
+    {
+      "addr": "40013",
+      "offset": "0x000C",
+      "name": "ChargeVoltage",
+      "unit": "V",
+      "scale": 0.1,
+      "writable": false
+    },
+    {
+      "addr": "40014",
+      "offset": "0x000D",
+      "name": "ChargeCurrent",
+      "unit": "A",
+      "scale": 0.1,
+      "writable": false
+    },
+    {
+      "addr": "40015",
+      "offset": "0x000E",
+      "name": "BatteryVoltage",
+      "unit": "V",
+      "scale": 0.1,
+      "writable": false
+    },
+    {
+      "addr": "40016",
+      "offset": "0x000F",
+      "name": "DcOutputCurrent",
+      "unit": "A",
+      "scale": 0.1,
+      "writable": false
+    },
+    {
+      "addr": "40017",
+      "offset": "0x0010",
+      "name": "ModuleTemp",
+      "unit": "C",
+      "scale": 1,
+      "writable": false
+    },
+    {
+      "addr": "40018",
+      "offset": "0x0011",
+      "name": "ExternalBattTemp",
+      "unit": "C",
+      "scale": 1,
+      "writable": false
+    },
+    {
+      "addr": "40019-20",
+      "offset": "0x0012",
+      "name": "EnergyWh",
+      "unit": "Wh",
+      "scale": 1,
+      "type": "UINT32",
+      "writable": false
+    }
+  ],
+  "gateway": {
+    "type": "none",
+    "notes": "See /api/energy/gateways for hardware options"
+  }
+}

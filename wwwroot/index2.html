@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local - Ышкын — Аренда жилья и глэмпинга в горах</title>
+    <style>
+        :root { 
+            --primary: #FF385C; 
+            --primary-hover: #E00B41;
+            --gray: #717171; 
+            --light-gray: #E0E0E0; 
+            --bg-subtle: #F7F7F7;
+            --dark: #222222;
+        }
+        *, *::before, *::after { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; color: var(--dark); background: #fff; -webkit-font-smoothing: antialiased; }
+        
+        .header { border-bottom: 1px solid var(--light-gray); padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: #fff; z-index: 100; }
+        .logo { font-size: 22px; font-weight: 800; color: var(--primary); text-decoration: none; display: flex; align-items: center; gap: 8px; cursor: pointer; letter-spacing: -0.5px; }
+        
+        .search-bar-mock { display: flex; border: 1px solid var(--light-gray); border-radius: 40px; padding: 6px 12px; align-items: center; gap: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: box-shadow 0.2s; cursor: pointer; }
+        .search-bar-mock:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+        .search-bar-mock span { font-weight: 600; font-size: 13px; }
+        .search-bar-mock .divider { width: 1px; height: 18px; background: var(--light-gray); }
+        .search-btn-icon { background: var(--primary); color: white; border: none; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; }
+        
+        .desktop-only-inline { display: none; }
+        .desktop-only-block { display: none; }
+        @media (min-width: 500px) {
+            .desktop-only-inline { display: inline; }
+            .desktop-only-block { display: block; }
+        }
+
+        .user-menu { display: flex; align-items: center; gap: 10px; border: 1px solid var(--light-gray); border-radius: 24px; padding: 4px 10px 4px 12px; background: #fff; cursor: pointer; }
+
+        .categories { display: flex; justify-content: flex-start; gap: 24px; padding: 12px 24px; border-bottom: 1px solid var(--light-gray); overflow-x: auto; background: #fff; position: sticky; top: 71px; z-index: 90; scrollbar-width: none; }
+        .category-item { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 11px; color: var(--gray); cursor: pointer; opacity: 0.75; transition: 0.2s; white-space: nowrap; padding-bottom: 6px; border-bottom: 2px solid transparent; }
+        .category-item:hover, .category-item.active { opacity: 1; color: var(--dark); border-bottom-color: var(--dark); }
+        .category-item span:first-child { font-size: 22px; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 24px 20px; }
+        
+        .map-widget-banner { background: var(--bg-subtle); border: 1px solid var(--light-gray); border-radius: 16px; padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+        @media (min-width: 600px) {
+            .map-widget-banner { flex-direction: row; justify-content: space-between; align-items: center; padding: 20px 24px; }
+        }
+        .map-widget-banner h3 { margin: 0 0 4px 0; font-size: 16px; }
+        .map-widget-banner p { margin: 0; color: var(--gray); font-size: 13px; }
+        .map-btn { background: var(--dark); color: white; border: none; padding: 10px 18px; border-radius: 10px; font-weight: 600; cursor: pointer; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+        .card { text-decoration: none; color: inherit; display: block; cursor: pointer; }
+        .card-img-wrapper { position: relative; width: 100%; aspect-ratio: 1/1; border-radius: 16px; overflow: hidden; margin-bottom: 10px; background: #eee; }
+        .card-img-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+        .card:hover img { transform: scale(1.05); }
+        .card-badge { position: absolute; top: 12px; left: 12px; background: rgba(255,255,255,0.9); padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .card-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
+        .card-subtitle { color: var(--gray); font-size: 13px; margin-bottom: 4px; }
+        .card-price { font-weight: 600; font-size: 14px; color: var(--dark); }
+        .card-price span { font-weight: normal; color: var(--gray); font-size: 12px; }
+
+        .view-section { display: none; }
+        .view-section.active { display: block; }
+        
+        .back-link { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 16px; color: var(--dark); text-decoration: none; font-weight: 600; font-size: 13px; cursor: pointer; padding: 6px 12px; border-radius: 8px; background: var(--bg-subtle); }
+        .room-heading { font-size: 22px; margin-bottom: 6px; font-weight: 800; letter-spacing: -0.5px; }
+
+        .gallery { display: grid; grid-template-columns: 1fr; grid-template-rows: 280px; gap: 8px; border-radius: 16px; overflow: hidden; margin-bottom: 24px; }
+        @media (min-width: 768px) {
+            .gallery { grid-template-columns: 2fr 1fr 1fr; grid-template-rows: 200px 200px; }
+            .gallery-img-container:first-child { grid-row: span 2; }
+        }
+        .gallery-img-container { overflow: hidden; width: 100%; height: 100%; position: relative; background: #eee; }
+        .gallery img { width: 100%; height: 100%; object-fit: cover; cursor: pointer; }
+
+        .content-layout { display: grid; grid-template-columns: 1fr; gap: 32px; align-items: start; }
+        @media (min-width: 900px) {
+            .content-layout { grid-template-columns: 1fr 380px; gap: 48px; }
+        }
+        .details h3 { font-size: 20px; margin-top: 0; font-weight: 700; }
+        .amenities-list { display: grid; grid-template-columns: 1fr; gap: 12px; margin: 20px 0; font-size: 14px; }
+        @media (min-width: 500px) {
+            .amenities-list { grid-template-columns: 1fr 1fr; }
+        }
+        .amenity-item { display: flex; align-items: center; gap: 10px; color: var(--dark); }
+
+        .reviews-section { margin-top: 32px; border-top: 1px solid var(--light-gray); padding-top: 24px; }
+        .review-card { background: var(--bg-subtle); padding: 14px; border-radius: 12px; margin-bottom: 10px; }
+        .review-header { display: flex; justify-content: space-between; font-weight: 600; margin-bottom: 4px; font-size: 13px; }
+        .review-text { font-size: 13px; color: var(--gray); margin: 0; }
+
+        .booking-card { border: 1px solid var(--light-gray); border-radius: 20px; padding: 20px; box-shadow: 0 6px 24px rgba(0,0,0,0.1); background: #fff; }
+        @media (min-width: 900px) {
+            .booking-card { position: sticky; top: 90px; padding: 24px; }
+        }
+        .price-box { font-size: 22px; font-weight: 800; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: baseline; }
+        .price-box span { font-size: 13px; font-weight: normal; color: var(--gray); }
+        
+        .dates-grid-airbnb { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--gray); border-radius: 12px; margin-bottom: 12px; overflow: hidden; cursor: pointer; background: #fafafa; }
+        .date-field-ab { padding: 10px 12px; display: flex; flex-direction: column; }
+        .date-field-ab:first-child { border-right: 1px solid var(--gray); }
+        .date-field-ab label { font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--gray); }
+        .date-field-ab span.val { font-size: 13px; font-weight: 600; color: var(--dark); margin-top: 2px; }
+
+        #airbnb-calendar-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: none; justify-content: center; align-items: center; padding: 20px; }
+        .airbnb-picker-card { background: #fff; border-radius: 24px; padding: 24px 32px; box-shadow: 0 12px 32px rgba(0,0,0,0.15); max-width: 720px; width: 100%; }
+        .picker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .picker-sub { font-size: 13px; color: var(--gray); margin-bottom: 16px; }
+        
+        .calendars-flex { display: flex; gap: 40px; justify-content: space-between; flex-wrap: wrap; }
+        .single-month { flex: 1; min-width: 280px; }
+        .month-title { font-weight: 700; font-size: 15px; text-align: center; margin-bottom: 12px; }
+        .weekdays-grid, .days-grid { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 12px; }
+        .weekdays-grid { color: var(--gray); font-weight: 600; margin-bottom: 8px; }
+        .days-grid { gap: 4px 0; }
+        
+        .day-cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; cursor: pointer; border-radius: 50%; user-select: none; margin: 2px 0; }
+        .day-cell:hover:not(.empty) { background: #f7f7f7; border: 1px solid var(--dark); }
+        .day-cell.empty { cursor: default; }
+        .day-cell.disabled { color: #ccc; cursor: not-allowed; }
+        .day-cell.selected-start, .day-cell.selected-end { background: var(--dark) !important; color: #fff !important; font-weight: 700; }
+        .day-cell.in-range { background: #f7f7f7; border-radius: 0; }
+
+        .picker-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; border-top: 1px solid var(--light-gray); padding-top: 16px; }
+        .clear-dates-btn { background: none; border: none; text-decoration: underline; font-weight: 600; cursor: pointer; font-size: 13px; color: var(--dark); }
+        .close-picker-btn { background: var(--dark); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+
+        .input-group { margin-bottom: 12px; }
+        .input-group label { display: block; font-size: 11px; font-weight: 800; margin-bottom: 6px; text-transform: uppercase; color: var(--gray); }
+        .input-group input, .input-group select { width: 100%; padding: 12px 14px; border: 1px solid var(--gray); border-radius: 10px; font-size: 14px; box-sizing: border-box; font-family: inherit; outline: none; }
+        
+        .extras-section { border-top: 1px solid var(--light-gray); margin-top: 16px; padding-top: 14px; }
+        .extras-section h4 { font-size: 13px; margin: 0 0 10px 0; font-weight: 700; }
+        .extra-item { display: flex; justify-content: space-between; align-items: center; font-size: 13px; margin-bottom: 8px; }
+        .extra-item label { display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+        .extra-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--primary); cursor: pointer; }
+
+        .calc-summary { border-top: 1px solid var(--light-gray); margin-top: 14px; padding-top: 14px; font-size: 14px; }
+        .calc-row { display: flex; justify-content: space-between; margin-bottom: 6px; color: var(--gray); }
+        .calc-total { display: flex; justify-content: space-between; font-weight: 800; font-size: 17px; color: var(--dark); margin-top: 12px; border-top: 1px solid var(--light-gray); padding-top: 12px; }
+
+        .btn-reserve { background: linear-gradient(to right, #E61E4D 0%, #E31C5F 50%, #D70466 100%); color: white; border: none; width: 100%; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 16px; box-shadow: 0 4px 12px rgba(227,28,95,0.3); }
+        
+        #alert-box { margin-top: 12px; padding: 12px; border-radius: 10px; font-size: 13px; display: none; }
+        #alert-box.success { background: #E6F4EA; color: #137333; border: 1px solid #CEEAD6; display: block !important; }
+        #alert-box.error { background: #FCE8E6; color: #C5221F; border: 1px solid #FAD2CF; display: block !important; font-weight: 600; }
+
+        .footer { border-top: 1px solid var(--light-gray); background: var(--bg-subtle); margin-top: 60px; padding: 24px 20px; color: var(--gray); font-size: 13px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <a class="logo" onclick="switchView('catalog')">🏔 Local - Ышкын</a>
+        <div class="search-bar-mock" onclick="switchView('catalog')">
+            <span>Любое направление</span>
+            <div class="divider desktop-only-block"></div>
+            <span class="desktop-only-inline">Любая неделя</span>
+            <div class="divider"></div>
+            <span style="color: var(--gray);">Гости</span>
+            <button class="search-btn-icon">🔍</button>
+        </div>
+        <div class="user-menu" onclick="alert('Меню пользователя Ышкын')">
+            <span>☰</span>
+            <span style="background: var(--dark); color: white; border-radius: 50%; width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold;">Ы</span>
+        </div>
+    </header>
+
+    <div class="categories">
+        <div class="category-item active" onclick="filterCategory('all', this)"><span>⛺</span><span>Все объекты</span></div>
+        <div class="category-item" onclick="filterCategory('yurt', this)"><span>🏕</span><span>Юрты Deluxe</span></div>
+        <div class="category-item" onclick="filterCategory('module', this)"><span>🏡</span><span>Модульные студии</span></div>
+        <div class="category-item" onclick="filterCategory('mountain', this)"><span>🌄</span><span>Вид на горы</span></div>
+        <div class="category-item" onclick="filterCategory('bath', this)"><span>♨️</span><span>Чан / Баня</span></div>
+    </div>
+
+    <!-- КАТАЛОГ -->
+    <div id="catalog-view" class="view-section active">
+        <main class="container">
+            <div class="map-widget-banner">
+                <div>
+                    <h3>Ищете жилье в живописной зоне?</h3>
+                    <p>Откройте интерактивную карту расположения наших юрт и студий.</p>
+                </div>
+                <button class="map-btn" onclick="alert('Интерактивная карта: Все объекты расположены в экологической зоне предгорий.')">На карте</button>
+            </div>
+
+            <h2 style="margin-bottom: 20px; font-size: 20px; font-weight: 800;">Популярное жилье</h2>
+            <div class="grid" id="rooms-grid"></div>
+        </main>
+    </div>
+
+    <!-- ДЕТАЛЬНАЯ СТРАНИЦА -->
+    <div id="detail-view" class="view-section">
+        <main class="container">
+            <a class="back-link" onclick="switchView('catalog')">← Назад к каталогу</a>
+            <h1 class="room-heading" id="det-title">Название объекта</h1>
+            <p style="margin-top: 0; margin-bottom: 20px; color: var(--gray); font-size: 14px;" id="det-subtitle">2 гостя · 1 спальня · 1 кровать · 1 ванная</p>
+
+            <div class="gallery" id="det-gallery"></div>
+
+            <div class="content-layout">
+                <div class="details">
+                    <h3>Жилье целиком, принимает Ышкын</h3>
+                    <p id="det-desc" style="line-height: 1.5; color: #484848; font-size: 15px;"></p>
+                    <hr style="margin: 24px 0; border: none; border-top: 1px solid var(--light-gray);">
+                    
+                    <h3>Что есть в помещении</h3>
+                    <div class="amenities-list">
+                        <div class="amenity-item"><span>📺</span> Телевизор Smart TV</div>
+                        <div class="amenity-item"><span>📶</span> Высокоскоростной Wi-Fi</div>
+                        <div class="amenity-item"><span>🌡</span> Кондиционер и отопление</div>
+                        <div class="amenity-item"><span>☕</span> Чайная зона и мини-бар</div>
+                        <div class="amenity-item"><span>🚿</span> Душ и санузел</div>
+                        <div class="amenity-item"><span>🌿</span> Панорамная терраса</div>
+                    </div>
+
+                    <div class="reviews-section">
+                        <h3>Отзывы гостей</h3>
+                        <div class="review-card">
+                            <div class="review-header"><span>Азамат К.</span> <span>★★★★★</span></div>
+                            <p class="review-text">Потрясающее место! Вид из окна завораживает, в доме очень чисто и уютно.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="booking-card">
+                    <div class="price-box">
+                        <div><span id="det-price">0</span> сом <span>/ ночь</span></div>
+                        <div style="font-size: 13px; font-weight: 600;" id="det-rating">★ 5.0</div>
+                    </div>
+
+                    <form id="booking-form">
+                        <div class="dates-grid-airbnb" onclick="openAirbnbCalendar()">
+                            <div class="date-field-ab">
+                                <label>Прибытие</label>
+                                <span class="val" id="display-checkin">Выберите дату</span>
+                            </div>
+                            <div class="date-field-ab">
+                                <label>Выезд</label>
+                                <span class="val" id="display-checkout">Выберите дату</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Количество гостей</label>
+                            <select id="guest-count">
+                                <option value="1">1 гость</option>
+                                <option value="2" selected>2 гостя</option>
+                                <option value="3">3 гостя</option>
+                                <option value="4">4 гостя</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Имя гостя</label>
+                            <input type="text" id="guest-name" placeholder="Имя и фамилия" required>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Номер телефона</label>
+                            <input type="tel" id="guest-phone" placeholder="+996 (___) __-__-__" required>
+                        </div>
+
+                        <div class="extras-section">
+                            <h4>Дополнительные услуги:</h4>
+                            <div class="extra-item">
+                                <label><input type="checkbox" class="extra-service" data-name="Мангал + уголь" data-price="800"> Мангал + уголь</label>
+                                <span style="font-weight: 600;">800 сом</span>
+                            </div>
+                            <div class="extra-item">
+                                <label><input type="checkbox" class="extra-service" data-name="Завтрак" data-price="500"> Завтрак</label>
+                                <span style="font-weight: 600;">500 сом</span>
+                            </div>
+                            <div class="extra-item">
+                                <label><input type="checkbox" class="extra-service" data-name="Чан / Баня" data-price="1500"> Чан / Баня</label>
+                                <span style="font-weight: 600;">1500 сом</span>
+                            </div>
+                        </div>
+
+                        <div class="calc-summary">
+                            <div class="calc-row">
+                                <span id="calc-nights">0 ноч. × 0 сом</span>
+                                <span id="calc-base-total">0 сом</span>
+                            </div>
+                            <div class="calc-row">
+                                <span>Доп. услуги:</span>
+                                <span id="calc-extras-total">0 сом</span>
+                            </div>
+                            <div class="calc-total">
+                                <span>Итого к оплате:</span>
+                                <span id="calc-final-total">0 сом</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-reserve" id="submit-btn">Забронировать</button>
+                    </form>
+
+                    <div id="alert-box"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Модальный календарь -->
+    <div id="airbnb-calendar-modal">
+        <div class="airbnb-picker-card" onclick="event.stopPropagation()">
+            <div class="picker-header">
+                <div>
+                    <h3 id="calendar-nights-title" style="margin:0;">Выберите даты</h3>
+                    <div class="picker-sub">Минимальный срок проживания: 1 ночь</div>
+                </div>
+                <button onclick="closeAirbnbCalendar()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
+            </div>
+            
+            <div class="calendars-flex" id="calendars-container"></div>
+
+            <div class="picker-footer">
+                <button class="clear-dates-btn" onclick="clearDates()">Сбросить даты</button>
+                <button class="close-picker-btn" onclick="closeAirbnbCalendar()">Готово</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div>© 2026 Ышкын, Inc. · Все права защищены</div>
+    </footer>
+
+    <script>
+        const roomsData = {
+            1: {
+                title: "Глэмпинг Юрта Deluxe",
+                subtitle: "Традиционная юрта с премиальным комфортом",
+                price: 6000,
+                rating: "5.0",
+                category: "yurt",
+                desc: "Уникальная дизайнерская юрта с панорамным куполом для наблюдения за звездами, мягкой двуспальной кроватью и полным комплектом современных удобств.",
+                images: [
+                    "https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80"
+                ]
+            },
+            2: {
+                title: "Модульная студия №1 (Панорама)",
+                subtitle: "Студия с панорамными окнами на горы",
+                price: 4500,
+                rating: "4.95",
+                category: "module",
+                desc: "Современный модульный домик с огромными стеклянными витражами, теплыми полами и приватной террасой.",
+                images: [
+                    "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=600&q=80"
+                ]
+            },
+            3: {
+                title: "Модульная студия №2 (Лесная)",
+                subtitle: "Уютный дом посреди хвойных деревьев",
+                price: 4800,
+                rating: "4.98",
+                category: "module",
+                desc: "Дом уединенного типа в окружении зелени и хвои для спокойного отдыха от городской суеты.",
+                images: [
+                    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=600&q=80"
+                ]
+            },
+            4: {
+                title: "Модульная студия №3 (Альпийская)",
+                subtitle: "Стиль шале и альпийский уют",
+                price: 5200,
+                rating: "5.0",
+                category: "mountain",
+                desc: "Экологичный дом с отделкой из натурального дерева, уютной зоной отдыха и прекрасным панорамным видом.",
+                images: [
+                    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=600&q=80"
+                ]
+            },
+            5: {
+                title: "Модульная студия №4 (Семейная)",
+                subtitle: "Просторное жилье для всей семьи",
+                price: 5500,
+                rating: "4.97",
+                category: "module",
+                desc: "Увеличенная студия с дополнительными комфортными спальными местами и мини-кухней.",
+                images: [
+                    "https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=600&q=80"
+                ]
+            }
+        };
+
+        let currentRoomId = 1;
+        let checkInDate = null;
+        let checkOutDate = null;
+        let calendarViewDate = new Date();
+
+        function renderCatalog(filter = 'all') {
+            const grid = document.getElementById('rooms-grid');
+            grid.innerHTML = '';
+            for (let id in roomsData) {
+                let room = roomsData[id];
+                if (filter !== 'all' && room.category !== filter) continue;
+                
+                let card = document.createElement('div');
+                card.className = 'card';
+                card.onclick = () => openRoomDetail(id);
+                card.innerHTML = `
+                    <div class="card-img-wrapper">
+                        <div class="card-badge">Хит сезона</div>
+                        <img src="${room.images[0]}" alt="${room.title}">
+                    </div>
+                    <div class="card-title">
+                        <span>${room.title}</span>
+                        <span>★ ${room.rating}</span>
+                    </div>
+                    <div class="card-subtitle">${room.subtitle}</div>
+                    <div class="card-price">${room.price} сом <span>/ ночь</span></div>
+                `;
+                grid.appendChild(card);
+            }
+        }
+
+        renderCatalog();
+
+        function filterCategory(category, el) {
+            document.querySelectorAll('.category-item').forEach(item => item.classList.remove('active'));
+            el.classList.add('active');
+            renderCatalog(category);
+        }
+
+        function switchView(viewName) {
+            document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+            if (viewName === 'catalog') {
+                document.getElementById('catalog-view').classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else if (viewName === 'detail') {
+                document.getElementById('detail-view').classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function openRoomDetail(id) {
+            currentRoomId = id;
+            const room = roomsData[id];
+            
+            document.getElementById('det-title').textContent = room.title;
+            document.getElementById('det-subtitle').textContent = `${room.subtitle} · ★ ${room.rating}`;
+            document.getElementById('det-desc').textContent = room.desc;
+            document.getElementById('det-price').textContent = room.price;
+            document.getElementById('det-rating').textContent = `★ ${room.rating}`;
+
+            const galleryContainer = document.getElementById('det-gallery');
+            galleryContainer.innerHTML = '';
+            room.images.forEach((imgUrl, index) => {
+                const div = document.createElement('div');
+                div.className = 'gallery-img-container';
+                div.innerHTML = `<img src="${imgUrl}" alt="Фото">`;
+                galleryContainer.appendChild(div);
+            });
+
+            setDefaultDates();
+            calculateTotal();
+            switchView('detail');
+        }
+
+        function setDefaultDates() {
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            
+            checkInDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+            checkOutDate = new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate());
+            updateDateDisplay();
+        }
+
+        function updateDateDisplay() {
+            const fmt = (d) => d ? d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Выберите дату';
+            document.getElementById('display-checkin').textContent = fmt(checkInDate);
+            document.getElementById('display-checkout').textContent = fmt(checkOutDate);
+        }
+
+        function openAirbnbCalendar() {
+            document.getElementById('airbnb-calendar-modal').style.display = 'flex';
+            renderAirbnbMonths();
+        }
+
+        function closeAirbnbCalendar() {
+            document.getElementById('airbnb-calendar-modal').style.display = 'none';
+            calculateTotal();
+        }
+
+        function clearDates() {
+            checkInDate = null;
+            checkOutDate = null;
+            updateDateDisplay();
+            renderAirbnbMonths();
+            calculateTotal();
+        }
+
+        function renderAirbnbMonths() {
+            const container = document.getElementById('calendars-container');
+            container.innerHTML = '';
+            for (let i = 0; i < 2; i++) {
+                let targetDate = new Date(calendarViewDate.getFullYear(), calendarViewDate.getMonth() + i, 1);
+                container.appendChild(createMonthElement(targetDate));
+            }
+        }
+
+        function createMonthElement(dateObj) {
+            const year = dateObj.getFullYear();
+            const month = dateObj.getMonth();
+            const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+
+            const monthDiv = document.createElement('div');
+            monthDiv.className = 'single-month';
+            monthDiv.innerHTML = `<div class="month-title">${monthNames[month]} ${year}</div>` +
+                `<div class="weekdays-grid"><div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div>Вс</div></div>` +
+                `<div class="days-grid" id="days-${year}-${month}"></div>`;
+
+            setTimeout(() => {
+                const grid = monthDiv.querySelector(`#days-${year}-${month}`);
+                let firstDayIndex = new Date(year, month, 1).getDay();
+                firstDayIndex = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
+                let totalDays = new Date(year, month + 1, 0).getDate();
+                let today = new Date(); today.setHours(0,0,0,0);
+
+                for (let i = 0; i < firstDayIndex; i++) {
+                    grid.innerHTML += `<div class="day-cell empty"></div>`;
+                }
+
+                for (let d = 1; d <= totalDays; d++) {
+                    let currDate = new Date(year, month, d);
+                    let isPast = currDate < today;
+                    let classes = ['day-cell'];
+                    if (isPast) classes.push('disabled');
+
+                    if (checkInDate && currDate.getTime() === checkInDate.getTime()) classes.push('selected-start');
+                    if (checkOutDate && currDate.getTime() === checkOutDate.getTime()) classes.push('selected-end');
+                    if (checkInDate && checkOutDate && currDate > checkInDate && currDate < checkOutDate) classes.push('in-range');
+
+                    const cell = document.createElement('div');
+                    cell.className = classes.join(' ');
+                    cell.textContent = d;
+                    if (!isPast) {
+                        cell.onclick = () => handleDateClick(year, month, d);
+                    }
+                    grid.appendChild(cell);
+                }
+            }, 0);
+
+            return monthDiv;
+        }
+
+        function handleDateClick(year, month, day) {
+            let clickedDate = new Date(year, month, day);
+            if (!checkInDate || (checkInDate && checkOutDate)) {
+                checkInDate = clickedDate;
+                checkOutDate = null;
+            } else if (checkInDate && !checkOutDate) {
+                if (clickedDate <= checkInDate) {
+                    checkInDate = clickedDate;
+                } else {
+                    checkOutDate = clickedDate;
+                }
+            }
+            updateDateDisplay();
+            renderAirbnbMonths();
+        }
+
+        function getSelectedExtras() {
+            const extras = [];
+            document.querySelectorAll('.extra-service:checked').forEach(cb => {
+                const name = cb.getAttribute('data-name');
+                if (name) extras.push(name.trim());
+            });
+            return extras;
+        }
+
+        function calculateTotal() {
+            let nights = 1;
+            if (checkInDate && checkOutDate) {
+                const diffTime = checkOutDate - checkInDate;
+                nights = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                if (nights < 1) nights = 1;
+            }
+
+            const room = roomsData[currentRoomId];
+            const baseTotal = nights * room.price;
+            
+            let extrasTotal = 0;
+            document.querySelectorAll('.extra-service').forEach(cb => {
+                if (cb.checked) extrasTotal += parseInt(cb.dataset.price);
+            });
+
+            const finalTotal = baseTotal + extrasTotal;
+
+            document.getElementById('calc-nights').textContent = `${nights} ноч. × ${room.price} сом`;
+            document.getElementById('calc-base-total').textContent = `${baseTotal} сом`;
+            document.getElementById('calc-extras-total').textContent = `${extrasTotal} сом`;
+            document.getElementById('calc-final-total').textContent = `${finalTotal} сом`;
+
+            return { finalTotal };
+        }
+
+        document.querySelectorAll('.extra-service').forEach(cb => {
+            cb.addEventListener('change', calculateTotal);
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const phoneInput = document.getElementById('guest-phone');
+            phoneInput.addEventListener('input', function() {
+                let matrix = '+996 (___) __-__-__';
+                let val = this.value.replace(/\D/g, '');
+                if (val.length >= 3 && val.substring(0, 3) === '996') val = val.substring(3);
+                let result = '+996 (', mIndex = 6, vIndex = 0;
+                while (mIndex < matrix.length && vIndex < val.length) {
+                    result += matrix[mIndex] === '_' ? val[vIndex++] : matrix[mIndex];
+                    mIndex++;
+                }
+                while (mIndex < matrix.length) result += matrix[mIndex++];
+                this.value = this.value.length <= 5 ? '+996 (' : result;
+            });
+            phoneInput.addEventListener('focus', function() { if (!this.value) this.value = '+996 ('; });
+        });
+
+        document.getElementById('booking-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const alertBox = document.getElementById('alert-box');
+            alertBox.style.display = 'none';
+            alertBox.className = '';
+
+            const name = document.getElementById('guest-name').value.trim();
+            const phone = document.getElementById('guest-phone').value.trim();
+
+            if (!checkInDate || !checkOutDate) {
+                alertBox.className = 'error';
+                alertBox.innerHTML = `⚠️ Выберите даты заезда и выезда.`;
+                return;
+            }
+
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Отправка заявки...';
+
+            try {
+                const bookingData = {
+                    roomId: parseInt(currentRoomId),
+                    guestName: name,
+                    guestPhone: phone,
+                    checkIn: checkInDate.toISOString().split('T')[0],
+                    checkOut: checkOutDate.toISOString().split('T')[0],
+                    totalPrice: calculateTotal().finalTotal,
+                    status: "Ожидает подтверждения",
+                    extras: getSelectedExtras()
+                };
+
+                const response = await fetch('/api/bookings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(bookingData)
+                });
+
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || 'Ошибка при бронировании');
+
+                alertBox.className = 'success';
+                alertBox.innerHTML = `<strong>Спасибо!</strong><br>Заявка #${result.id || ''} принята. Мы свяжемся с вами.`;
+                document.getElementById('booking-form').reset();
+                setDefaultDates();
+                calculateTotal();
+            } catch (err) {
+                alertBox.className = 'error';
+                alertBox.innerHTML = `⚠️ ${err.message || 'Ошибка отправки.'}`;
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Забронировать';
+            }
+        });
+    </script>
+</body>
+</html>
